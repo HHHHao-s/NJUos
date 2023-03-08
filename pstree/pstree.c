@@ -29,7 +29,7 @@ void insert_all()
     DIR *dir = opendir("/proc");
     d = readdir(dir);
 
-    write(STDOUT_FILENO, d, 10000);
+    write(STDOUT_FILENO, d, 100000);
 
    
 }
