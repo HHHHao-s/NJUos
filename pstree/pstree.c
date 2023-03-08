@@ -18,9 +18,9 @@ void insert_all()
 
     
     DIR *dir = opendir("/proc");
-    handle_error("opendir");
+    if(dir==NULL)handle_error("opendir");
     while((d = readdir(dir)) != NULL){
-        handle_error("readdir");
+        
         printf("%s",d->d_name);
     }
     
