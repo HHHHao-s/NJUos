@@ -28,7 +28,7 @@ void insert_all()
     int bpos;
     char d_type;
 
-    fd = open("/proc/2", O_RDONLY | O_DIRECTORY);
+    fd = open("/proc/0", O_RDONLY | O_DIRECTORY);
     if (fd == -1)
         handle_error("open");
 
