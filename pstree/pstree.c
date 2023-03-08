@@ -21,7 +21,7 @@ void insert_all()
     if(dir==NULL)handle_error("opendir");
     while((d = readdir(dir)) != NULL){
         
-        printf("%s",d->d_name);
+        printf("%s\n",d->d_name);
     }
     
 
