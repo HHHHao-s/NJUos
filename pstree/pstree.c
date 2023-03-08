@@ -10,15 +10,6 @@
 #define handle_error(msg) \
         do { perror(msg); exit(EXIT_FAILURE); } while (0)
 
-struct linux_dirent {
-    long           d_ino;
-    off_t          d_off;
-    unsigned short d_reclen;
-    char           d_name[];
-};
-
-#define BUF_SIZE 1024
-
 
 void insert_all()
 {
@@ -27,7 +18,9 @@ void insert_all()
 
     
     DIR *dir = opendir("/proc");
-    while(d = readdir(dir) != NULL){
+    handle_error("opendir");
+    while((d = readdir(dir)) != NULL){
+        handle_error("readdir");
         printf("%s",d->d_name);
     }
     
