@@ -23,13 +23,14 @@ struct linux_dirent {
 void insert_all()
 {
     
-    struct dirent *d=NULL;
+    struct dirent *d=NULL,*each;
 
     
     DIR *dir = opendir("/proc");
-    d = readdir(dir);
-
-    write(STDOUT_FILENO, d, 100000);
+    while(d = readdir(dir) != NULL){
+        printf("%s",d->d_name);
+    }
+    
 
    
 }
