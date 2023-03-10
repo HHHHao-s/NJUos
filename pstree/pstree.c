@@ -38,8 +38,8 @@ void insert_all()
             
             printf("%d\n", pid);
             for(int i=0;i<6;i++){
-                fgets(buf,256, fstatus);
-                printf("%s",buf);
+                char *pbuf=fgets(buf,256, fstatus);
+                printf("%s",pbuf);
             }
             int ppid=0;
             fscanf(fstatus,"%s %d",buf, &ppid);
