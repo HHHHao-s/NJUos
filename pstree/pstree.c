@@ -39,7 +39,7 @@ void insert_all()
             printf("%d\n", pid);
             for(int i=0;i<6;i++){
                 if(fgets(buf,256, fstatus)!=NULL)
-                printf("%s",pbuf);
+                printf("%s",buf);
             }
             int ppid=0;
             fscanf(fstatus,"%s %d",buf, &ppid);
