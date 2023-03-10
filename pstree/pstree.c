@@ -33,7 +33,7 @@ void insert_all()
             // struct dirent *dpid;
             char status_name[256], buf[256];
             sprintf( status_name,"/proc/%d/status", pid);
-            FILE *fstatus = fopen(status_name, O_RDONLY);
+            FILE *fstatus = fopen(status_name, 'r');
             if(!fstatus)handle_error("open status");
             
             printf("%d\n", pid);
