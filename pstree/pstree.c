@@ -42,9 +42,9 @@ void insert_all()
             if(!fstatus)handle_error("open status");
             
             char pname[256];
-            fscanf(fstatus, "Name: %s", pname);
+            fscanf(fstatus, "Name: %s\n", pname);
 
-            for(int i=1;i<7;i++){
+            for(int i=1;i<6;i++){
                 if(fgets(buf,256, fstatus)!=NULL)
                 ;// printf("%s",buf);
                 else handle_error("fgets");
