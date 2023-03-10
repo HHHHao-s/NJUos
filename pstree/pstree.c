@@ -23,11 +23,11 @@ void insert_all()
         char *pid_c = d->d_name;
         int pid=0;
         for(;pid_c;pid_c++){
-            if(pid_c>'0' && pid_c<'9') 
-            pid = pid*10 + pid_c-'0';
+            if(*pid_c>'0' && *pid_c<'9') 
+            pid = pid*10 + *pid_c-'0';
             else break;
         }
-        if(pid_c == '\0'){
+        if(*pid_c == '\0'){
             struct dirent *dpid;
             char status_name[256], buf[256];
             sprintf( status_name,"/proc/%d/status", pid);
@@ -38,9 +38,10 @@ void insert_all()
                 printf("%s",buf);
             }
             int ppid=0;
-            fscanf("%s %d",&buf, &ppid);
+            fscanf(fstatus,"%s %d",&buf, &ppid);
             if(fclose(fstatus) == -1) handle_error("fclose");
 
+            
             
         }
     }
