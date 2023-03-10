@@ -38,11 +38,11 @@ void insert_all()
                 printf("%s",buf);
             }
             int ppid=0;
-            fscanf(fstatus,"%s %d",&buf, &ppid);
+            fscanf(fstatus,"%s %d",buf, &ppid);
             if(fclose(fstatus) == -1) handle_error("fclose");
 
             
-            
+
         }
     }
     
