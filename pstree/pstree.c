@@ -14,18 +14,37 @@
 void insert_all()
 {
     
-    struct dirent *d=NULL,*each;
+    struct dirent *d=NULL;
 
     
     DIR *dir = opendir("/proc");
     if(dir==NULL)handle_error("opendir");
     while((d = readdir(dir)) != NULL){
-        
-        printf("%s\n",d->d_name);
+        char *pid_c = d->d_name;
+        int pid=0;
+        for(;pid_c;pid_c++){
+            if(pid_c>'0' && pid_c<'9') 
+            pid = pid*10 + pid_c-'0';
+            else break;
+        }
+        if(pid_c == '\0'){
+            struct dirent *dpid;
+            char status_name[256], buf[256];
+            sprintf( status_name,"/proc/%d/status", pid);
+            FILE *fstatus = fopen(status_name, O_RDONLY);
+            if(!fstatus)handle_error("open status");
+            for(int i=0;i<6;i++){
+                fgets(buf,256, fstatus);
+                printf("%s",buf);
+            }
+            int ppid=0;
+            fscanf("%s %d",&buf, &ppid);
+            if(fclose(fstatus) == -1) handle_error("fclose");
+
+            
+        }
     }
     
-
-   
 }
 
 int main(int argc, char *argv[])
