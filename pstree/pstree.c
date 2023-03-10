@@ -55,7 +55,7 @@ void insert_all()
 
             if(fclose(fstatus) == -1) handle_error("fclose");
 
-            printf("%s %d", pname, ppid);
+            printf("%s %d\n", pname, ppid);
 
         }
     }
