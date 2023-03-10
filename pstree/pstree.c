@@ -28,8 +28,9 @@ void insert_all()
             pid = pid*10 + *pid_c-'0';
             else break;
         }
-        printf("%d\n", pid);
+        
         if(*pid_c == '\0'){
+            printf("%d\n", pid);
             struct dirent *dpid;
             char status_name[256], buf[256];
             sprintf( status_name,"/proc/%d/status", pid);
