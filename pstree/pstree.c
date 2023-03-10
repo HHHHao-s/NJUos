@@ -40,6 +40,7 @@ void insert_all()
             for(int i=0;i<6;i++){
                 if(fgets(buf,256, fstatus)!=NULL)
                 printf("%s",buf);
+                else handle_error("fgets");
             }
             int ppid=0;
             fscanf(fstatus,"%s %d",buf, &ppid);
