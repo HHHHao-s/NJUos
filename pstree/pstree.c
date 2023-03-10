@@ -37,21 +37,25 @@ void insert_all()
             // struct dirent *dpid;
             char status_name[256], buf[256];
             sprintf( status_name,"/proc/%d/status", pid);
-            printf("%s\n", status_name);
+            
             FILE *fstatus = fopen(status_name, "r");
             if(!fstatus)handle_error("open status");
             
-            printf("%d\n", pid);
-            for(int i=0;i<6;i++){
+            char pname[256];
+            fscanf(fstatus, "Name: %s", pname);
+
+            for(int i=1;i<6;i++){
                 if(fgets(buf,256, fstatus)!=NULL)
-                printf("%s",buf);
+                ;// printf("%s",buf);
                 else handle_error("fgets");
             }
             int ppid=0;
             fscanf(fstatus,"%s %d",buf, &ppid);
+
+
             if(fclose(fstatus) == -1) handle_error("fclose");
 
-            
+            printf("%s %d", pname, ppid);
 
         }
     }
