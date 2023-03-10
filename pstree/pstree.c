@@ -23,7 +23,8 @@ void insert_all()
         char *pid_c = d->d_name;
         printf("%s\n", pid_c);
         int pid=0;
-        for(;pid_c;pid_c++){
+
+        for(;*pid_c;pid_c++){
             if(*pid_c>'0' && *pid_c<'9') 
             pid = pid*10 + *pid_c-'0';
             else break;
