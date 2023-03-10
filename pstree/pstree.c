@@ -44,7 +44,7 @@ void insert_all()
             char pname[256];
             fscanf(fstatus, "Name: %s", pname);
 
-            for(int i=1;i<6;i++){
+            for(int i=1;i<7;i++){
                 if(fgets(buf,256, fstatus)!=NULL)
                 ;// printf("%s",buf);
                 else handle_error("fgets");
