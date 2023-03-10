@@ -25,9 +25,11 @@ void insert_all()
         int pid=0;
 
         for(;*pid_c;pid_c++){
-            if(*pid_c>'0' && *pid_c<'9') 
-            pid = pid*10 + *pid_c-'0';
-            printf("%d",pid);
+            if(*pid_c>'0' && *pid_c<'9') {
+                pid = pid*10 + *pid_c-'0';
+                printf("%d",pid);
+            }
+            
             else break;
         }
         
