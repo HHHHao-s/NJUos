@@ -30,12 +30,13 @@ void insert_all()
         }
         
         if(*pid_c == '\0'){
-            printf("%d\n", pid);
-            struct dirent *dpid;
+            // struct dirent *dpid;
             char status_name[256], buf[256];
             sprintf( status_name,"/proc/%d/status", pid);
             FILE *fstatus = fopen(status_name, O_RDONLY);
             if(!fstatus)handle_error("open status");
+            
+            printf("%d\n", pid);
             for(int i=0;i<6;i++){
                 fgets(buf,256, fstatus);
                 printf("%s",buf);
