@@ -6,9 +6,65 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/syscall.h>
+#include <string.h>
 
 #define handle_error(msg) \
         do { perror(msg); exit(EXIT_FAILURE); } while (0)
+
+void *Malloc(size_t size){
+    void *p;
+    if(p = malloc(size)==NULL) handle_error("malloc");
+    return p;
+}
+
+
+
+typedef struct _tree{
+    struct  _tree *bro,*son;
+
+    char name[256];
+    int pid;
+}Tree;
+
+
+void Tree_init(Tree *head){
+    head->bro=NULL;
+    head->son=NULL;
+    strcpy(head->name, "init");
+    head->pid = 1;
+}
+
+Tree *Tree_alloc(char *name, int pid){
+    Tree *add = Malloc(sizeof(Tree));
+    add->bro = NULL;
+    add->son = NULL;
+    add->pid = pid;
+    strcpy(add->name, name);
+    return add;
+}
+
+
+int Tree_insert(Tree *head, int ppid, int pid, char *name){
+    if(pid == 1 || head==NULL){
+        return -1;
+    }
+    if(head->pid == ppid){
+        if(head->son == NULL){
+            head->son = Tree_alloc(name,pid);
+
+            
+        }else{
+            Tree *p = head->son;
+            for(;p->bro;p=p->bro);
+            p->bro = Tree_alloc(name,pid);
+        }
+        return 0;
+    }else{
+        if(Tree_insert(head->bro, ppid, pid, name)==-1){
+            return Tree_insert(head->son, ppid, pid, name);
+        }
+    }
+}
 
 
 void insert_all()
