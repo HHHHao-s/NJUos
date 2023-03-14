@@ -68,7 +68,45 @@ int Tree_insert(Tree *head, int ppid, int pid, char *name){
 }
 
 
-void insert_all()
+void Tree_print(Tree *head){
+
+    char *status = Malloc(1<<13);
+    memset(status, ' ', 1<<13);
+    size_t len = 0;
+    Tree_print_in(head, status, len);
+
+
+}
+
+void Tree_print_in(Tree *head, char status[], size_t len){
+    
+    char buf[512];
+    sprintf(buf, "-%s-", head->name);
+    size_t buf_len = strlen(buf);
+
+    if(head->son != NULL){
+        if(head->son->bro!=NULL){
+            printf("%s+",buf);
+            status[buf_len] = "|";
+        }else{
+            printf("buf");
+        }
+        Tree_print_in(head, status, len + buf_len + 1);
+    }
+    else{
+        printf("%s\n", buf);
+        
+    }
+    if(head->bro!=NULL){
+        write(stdout, status, len);
+        fflush(stdout);
+        Tree_print_in(head,status, len + buf_len +1);
+    }
+}
+
+
+
+void insert_all(Tree *head)
 {
     
     struct dirent *d=NULL;
@@ -113,7 +151,7 @@ void insert_all()
             if(fclose(fstatus) == -1) handle_error("fclose");
 
             printf("%d %s %d\n",pid, pname, ppid);
-
+            Tree_insert(head,ppid,pid,pname);
         }
     }
     
@@ -121,7 +159,11 @@ void insert_all()
 
 int main(int argc, char *argv[])
 {
-    insert_all();
+
+    Tree head;
+    Tree_init(&head);
+
+    insert_all(&head);
     // for (int i = 0; i < argc; i++)
     // {
     //     assert(argv[i]);
