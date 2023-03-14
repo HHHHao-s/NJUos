@@ -79,7 +79,7 @@ void Tree_print_in(Tree *head, char status[], size_t len){
     if(head->son != NULL){
         if(head->son->bro!=NULL){
             printf("%s+",buf);
-            status[buf_len] = '|';
+            status[len + buf_len] = '|';
         }else{
             printf("%s-", buf);
         }
