@@ -90,7 +90,7 @@ void Tree_print_in(Tree *head, char status[], size_t len){
         
     }
     if(head->bro!=NULL){
-        write(stdout, status, len);
+        write(STDOUT_FILENO, status, len);
         fflush(stdout);
         Tree_print_in(head,status, len + buf_len +1);
     }
