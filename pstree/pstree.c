@@ -73,7 +73,7 @@ int Tree_insert(Tree *head, int ppid, int pid, char *name){
 void Tree_print_in(Tree *head, char status[], size_t len){
     
     char buf[512];
-    sprintf(buf, "-%s-", head->name);
+    sprintf(buf, "-%s(%d)-", head->name, head->pid);
     size_t buf_len = strlen(buf);
 
     if(head->son != NULL){
