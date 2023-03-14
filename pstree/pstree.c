@@ -68,15 +68,7 @@ int Tree_insert(Tree *head, int ppid, int pid, char *name){
 }
 
 
-void Tree_print(Tree *head){
 
-    char *status = Malloc(1<<13);
-    memset(status, ' ', 1<<13);
-    size_t len = 0;
-    Tree_print_in(head, status, len);
-
-
-}
 
 void Tree_print_in(Tree *head, char status[], size_t len){
     
@@ -103,6 +95,17 @@ void Tree_print_in(Tree *head, char status[], size_t len){
         Tree_print_in(head,status, len + buf_len +1);
     }
 }
+
+void Tree_print(Tree *head){
+
+    char *status = Malloc(1<<13);
+    memset(status, ' ', 1<<13);
+    size_t len = 0;
+    Tree_print_in(head, status, len);
+
+
+}
+
 
 
 
