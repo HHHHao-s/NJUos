@@ -153,7 +153,7 @@ void insert_all(Tree *head)
 
             if(fclose(fstatus) == -1) handle_error("fclose");
 
-            printf("%d %s %d\n",pid, pname, ppid);
+            // printf("%d %s %d\n",pid, pname, ppid);
             Tree_insert(head,ppid,pid,pname);
         }
     }
@@ -167,6 +167,7 @@ int main(int argc, char *argv[])
     Tree_init(&head);
 
     insert_all(&head);
+    Tree_print(&head);
     // for (int i = 0; i < argc; i++)
     // {
     //     assert(argv[i]);
