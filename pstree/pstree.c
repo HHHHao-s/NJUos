@@ -13,7 +13,7 @@
 
 void *Malloc(size_t size){
     void *p;
-    if(p = malloc(size)==NULL) handle_error("malloc");
+    if((p = malloc(size))==NULL) handle_error("malloc");
     return p;
 }
 
