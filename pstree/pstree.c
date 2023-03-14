@@ -81,7 +81,7 @@ void Tree_print_in(Tree *head, char status[], size_t len){
             printf("%s+",buf);
             status[buf_len] = '|';
         }else{
-            printf("%s", buf);
+            printf("%s-", buf);
         }
         Tree_print_in(head->son, status, len + buf_len + 1);
     }
