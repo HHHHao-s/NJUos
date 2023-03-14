@@ -64,6 +64,7 @@ int Tree_insert(Tree *head, int ppid, int pid, char *name){
             return Tree_insert(head->son, ppid, pid, name);
         }
     }
+    return -1;
 }
 
 
