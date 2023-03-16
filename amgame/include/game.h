@@ -4,7 +4,8 @@
 #include <klib-macros.h>
 
 void splash();
-void print_key();
+AM_INPUT_KEYBRD_T print_key();
 static inline void puts(const char *s) {
   for (; *s; s++) putch(*s);
 }
+void flash(int, int);
