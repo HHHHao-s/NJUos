@@ -29,7 +29,7 @@ void splash() {
       if ((x & 1) ^ (y & 1)) {
         draw_tile(x * SIDE, y * SIDE, SIDE, SIDE, 0x0000ff); // blue
       }else{
-        draw_tile(x * SIDE, y * SIDE, SIDE, SIDE, 0xff0000); // red
+        draw_tile(x * SIDE, y * SIDE, SIDE, SIDE, 0xffffff); // red
       }
     }
   }
