@@ -189,7 +189,7 @@ static void co_finish()
 
 void co_print(){
     for(int i=0;i<q.size;i++){
-        printf("name=%s\n status=%d", q.array[i]->name, q.array[i]->status);
+        printf("name=%s status=%d\n", q.array[i]->name, q.array[i]->status);
     }
 }
 
