@@ -137,7 +137,26 @@ void co_wait(struct co *co)
 static void co_finish()
 {
     current->status = CO_DEAD;
-    co_yield();
+    if(current->waiter!=NULL){
+        // switch to waiter
+        longjmp(current->waiter->jb, 0);
+    }else{
+        // switch to other
+        struct co * next=pick();
+        
+        // printf("cur:%s next:%s\n", current->name, next->name);
+        current=next;
+        if(next->status == CO_NEW){
+            
+            next->status = CO_RUNNING;
+            next->retfun = co_finish; 
+            
+            stack_switch_call(&next->stack[STACKSIZE],next->func, (uintptr_t)next->arg); // 数据结构在堆上申请，低地址是结构的第一个参数，而栈是向下增长，所以要用高地址作为栈顶
+        }
+        else{
+            longjmp(next->jb, 1);
+        }
+    }
 }
 
 void co_yield()
