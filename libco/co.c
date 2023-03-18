@@ -207,7 +207,7 @@ void co_yield()
         current=next;
         if(next->status == CO_NEW){
             
-            void *base = (void *)((((uintptr_t)next)-15+STACKSIZE)&~0xf); // 获取对齐的地址
+            void *base = (void *)((((uintptr_t)next)+STACKSIZE)&~0xf); // 获取对齐的地址
             next->status = CO_RUNNING;
 
             
