@@ -174,11 +174,11 @@ void co_yield()
         current=next;
         if(next->status == CO_NEW){
             
-            void *base = (void *)((((uintptr_t)next)-15+STACKSIZE)&~0xf); // 获取对齐的地址
+            void *base = (void *)((((uintptr_t)next)-15+STACKSIZE)&~0xf); // 获取16字节对齐的地址
             next->status = CO_RUNNING;
 
             
-            void ** retfun= base+sizeof(void *);
+            void ** retfun= base;
             *retfun = co_finish;
             printf("base=%p next=%p next+stacksize=%p\n" , base, next, &next->stack[STACKSIZE]);
             stack_switch_call(base,next->func, (uintptr_t)next->arg); // 数据结构在堆上申请，低地址是结构的第一个参数，而栈是向下增长，所以要用高地址作为栈顶
