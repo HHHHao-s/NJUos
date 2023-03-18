@@ -174,7 +174,7 @@ void co_yield()
         current=next;
         if(next->status == CO_NEW){
             
-            void *base = (void *)((((uintptr_t)next)-15+STACKSIZE)&~0xf); // 获取16字节对齐的地址
+            void *base = (void *)((((uintptr_t)next)-16+STACKSIZE)&~0xf); // 获取16字节对齐的地址
             next->status = CO_RUNNING;
 
             
