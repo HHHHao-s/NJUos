@@ -70,6 +70,7 @@ static void producer(void *arg) {
             do_produce(queue);
             i += 1;
         }
+        printf("%d ", i);
         co_yield();
     }
 }
