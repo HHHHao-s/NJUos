@@ -141,16 +141,20 @@ static void co_finish()
         longjmp(current->waiter->jb, 0);
     }else{
         // switch to other
+        // pick one routinue to run
         struct co * next=pick();
         
-        // printf("cur:%s next:%s\n", current->name, next->name);
+        printf("cur:%s next:%s\n", current->name, next->name);
         current=next;
         if(next->status == CO_NEW){
             
+            void *base = (uintptr_t)(&next-16+STACKSIZE)&(~0xf); // 获取对齐的地址
             next->status = CO_RUNNING;
-            next->retfun = co_finish; 
+
             
-            stack_switch_call(&next->stack[STACKSIZE],next->func, (uintptr_t)next->arg); // 数据结构在堆上申请，低地址是结构的第一个参数，而栈是向下增长，所以要用高地址作为栈顶
+            void ** retfun= base-sizeof(void *);
+            *retfun = co_finish;
+            stack_switch_call(base-sizeof(void *),next->func, (uintptr_t)next->arg); // 数据结构在堆上申请，低地址是结构的第一个参数，而栈是向下增长，所以要用高地址作为栈顶
         }
         else{
             longjmp(next->jb, 1);
