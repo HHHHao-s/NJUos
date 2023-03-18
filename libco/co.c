@@ -42,7 +42,7 @@ struct co
     __uint8_t stack[STACKSIZE]; // 协程的堆栈
     void * retfun;              // 协程执行完后要到的函数
 };
-
+struct co *current;
 static struct _q
 {
     struct co *array[16];
@@ -97,7 +97,7 @@ static void delete(struct co *co_r)
     q.size--;
 }
 
-struct co *current;
+
 struct co *co_start(const char *name, void (*func)(void *), void *arg)
 {
     struct co *newco = malloc(sizeof(struct co));
