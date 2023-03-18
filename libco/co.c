@@ -204,8 +204,8 @@ void co_yield()
         struct co * next=pick();
         
         // printf("cur:%s cur->status:%d next:%s next->status:%d\n", current->name, current->status, next->name, next->status );
-        printf("yield():");
-        co_print();
+        // printf("yield():");
+        // co_print();
         current=next;
         if(next->status == CO_NEW){
             
