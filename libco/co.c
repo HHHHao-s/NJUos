@@ -21,7 +21,7 @@ static inline void stack_switch_call(void *sp, void *entry, uintptr_t arg)
     );
 }
 
-#define STACKSIZE 1<<16
+#define STACKSIZE 1<<17
 enum co_status
 {
     CO_NEW = 1, // 新创建，还未执行过
@@ -47,7 +47,7 @@ struct co
 struct co *current;
 struct _q
 {
-    struct co *array[16];
+    struct co *array[128];
     size_t size;
 };
 
