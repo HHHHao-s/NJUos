@@ -201,7 +201,7 @@ void co_yield()
         // pick one routinue to run
         struct co * next=pick();
         
-        printf("cur:%s next:%s\n", current->name, next->name);
+        printf("cur:%s cur->status:%d next:%s next->status:%s\n", current->name, current->status, next->name, next->status );
         current=next;
         if(next->status == CO_NEW){
             
