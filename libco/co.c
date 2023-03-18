@@ -32,7 +32,7 @@ enum co_status
 
 struct co
 {
-    char *name;
+    const char *name;
     void (*func)(void *); // co_start 指定的入口地址和参数
     void *arg;
 
@@ -43,7 +43,7 @@ struct co
     void * retfun;              // 协程执行完后要到的函数
 };
 struct co *current;
-static struct _q
+struct _q
 {
     struct co *array[16];
     size_t size;
@@ -147,7 +147,7 @@ void co_yield()
         if(next->status == CO_NEW){
             
             next->retfun = co_finish; 
-            stack_switch_call(next->stack[sizeof(next)-sizeof(void *)],next->func, next->arg); // 数据结构在堆上申请，低地址是结构的第一个参数，而栈是向下增长，所以要用高地址作为栈顶
+            stack_switch_call(&next->stack[sizeof(next)-sizeof(void *)],next->func, (uintptr_t)next->arg); // 数据结构在堆上申请，低地址是结构的第一个参数，而栈是向下增长，所以要用高地址作为栈顶
         }
         else{
             longjmp(next->jb, 1);
@@ -159,7 +159,8 @@ void co_yield()
     }
 }
 
-static  __attribute__((constructor)) before(){
+void  __attribute__((constructor)) before();
+void before(){
     current = co_start("main", NULL, NULL);
     current->status = CO_RUNNING;
 }
