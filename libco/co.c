@@ -22,7 +22,7 @@ static inline void stack_switch_call(void *sp, void *entry, uintptr_t arg)
     );
 }
 
-#define STACKSIZE 65528
+#define STACKSIZE 65536
 enum co_status
 {
     CO_NEW = 1, // 新创建，还未执行过
@@ -35,7 +35,6 @@ struct co
 {
     
     __uint8_t stack[STACKSIZE]; // 协程的堆栈
-    void * retfun;              // 协程执行完后要到的函数
     const char *name;
     void (*func)(void *); // co_start 指定的入口地址和参数
     void *arg;
@@ -171,10 +170,13 @@ void co_yield()
         current=next;
         if(next->status == CO_NEW){
             
+            void *base = (uintptr_t)(&next-16+STACKSIZE)&(~0xf); // 获取对齐的地址
             next->status = CO_RUNNING;
-            next->retfun = co_finish; 
+
             
-            stack_switch_call(&next->stack[STACKSIZE],next->func, (uintptr_t)next->arg); // 数据结构在堆上申请，低地址是结构的第一个参数，而栈是向下增长，所以要用高地址作为栈顶
+            void ** retfun= base-sizeof(void *);
+            *retfun = co_finish;
+            stack_switch_call(base-sizeof(void *),next->func, (uintptr_t)next->arg); // 数据结构在堆上申请，低地址是结构的第一个参数，而栈是向下增长，所以要用高地址作为栈顶
         }
         else{
             longjmp(next->jb, 1);
