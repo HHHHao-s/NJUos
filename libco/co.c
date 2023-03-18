@@ -162,6 +162,7 @@ static void co_finish()
     current->status = CO_DEAD;
     if(current->waiter!=NULL){
         // switch to waiter
+        current = current->waiter;
         longjmp(current->waiter->jb, 0);
     }else{
         // switch to other
