@@ -58,7 +58,9 @@ static struct co * pick(){
     // pick one routinue to run
 
     int waiter=0;
-    for(int i=0;i<q.size;i++){
+    int a = rand()&1;
+    if(a == 0){
+        for(int i=0;i<q.size;i++){
         if(q.array[i]->status == CO_WAITING){
             waiter = i;
             continue;
@@ -67,7 +69,20 @@ static struct co * pick(){
 
             return q.array[i];
         }
+        }
+    }else{
+        for(int i=q.size;i-->0;){
+        if(q.array[i]->status == CO_WAITING){
+            waiter = i;
+            continue;
+        }
+        if(q.array[i]->status != CO_DEAD && current!=q.array[i]){ // only not dead or waiting
+
+            return q.array[i];
+        }
+        }
     }
+    
     return q.array[waiter];
 }
 
