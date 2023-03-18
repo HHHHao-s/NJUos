@@ -21,7 +21,7 @@ static inline void stack_switch_call(void *sp, void *entry, uintptr_t arg)
     );
 }
 
-#define STACKSIZE 1<<17
+#define STACKSIZE 1<<16
 enum co_status
 {
     CO_NEW = 1, // 新创建，还未执行过
@@ -149,7 +149,7 @@ void co_yield()
         if(next->status == CO_NEW){
             
             next->retfun = co_finish; 
-            stack_switch_call(&next->stack[STACKSIZE],next->func, (uintptr_t)next->arg); // 数据结构在堆上申请，低地址是结构的第一个参数，而栈是向下增长，所以要用高地址作为栈顶
+            stack_switch_call(&next->stack[STACKSIZE-8],next->func, (uintptr_t)next->arg); // 数据结构在堆上申请，低地址是结构的第一个参数，而栈是向下增长，所以要用高地址作为栈顶
         }
         else{
             longjmp(next->jb, 1);
