@@ -147,7 +147,7 @@ void co_yield()
         // pick one routinue to run
         struct co * next=pick();
         if(next->status == CO_NEW){
-            
+            next->status = CO_RUNNING;
             next->retfun = co_finish; 
             stack_switch_call(&next->stack[STACKSIZE],next->func, (uintptr_t)next->arg); // 数据结构在堆上申请，低地址是结构的第一个参数，而栈是向下增长，所以要用高地址作为栈顶
         }
