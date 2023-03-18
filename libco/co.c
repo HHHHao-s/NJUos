@@ -21,7 +21,7 @@ static inline void stack_switch_call(void *sp, void *entry, uintptr_t arg)
     );
 }
 
-#define STACKSIZE 8192
+#define STACKSIZE 1<<16
 enum co_status
 {
     CO_NEW = 1, // 新创建，还未执行过
@@ -165,4 +165,5 @@ void  __attribute__((constructor)) before();
 void before(){
     current = co_start("main", NULL, NULL);
     current->status = CO_RUNNING;
+    
 }
