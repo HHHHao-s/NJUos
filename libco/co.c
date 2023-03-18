@@ -162,9 +162,9 @@ static void co_finish()
     current->status = CO_DEAD;
     if(current->waiter!=NULL){
         // switch to waiter
-        struct co*temp = current;
-        current = current->waiter;
-        longjmp(current->jb, 0);
+        // struct co*temp = current;s
+        // current = current->waiter;
+        longjmp(current->waiter->jb, 0);
     }else{
         // switch to other
         // pick one routinue to run
