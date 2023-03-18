@@ -137,7 +137,7 @@ void co_wait(struct co *co)
             delete(co);
             free(co);
             int i=0;
-            for(;i<q.size;i++){
+            for(;i<q.size;i++){ // 如果没人等，那就改状态
                 if(q.array[i]->waiter == current){
                     break;
                 }
@@ -228,5 +228,5 @@ void  __attribute__((constructor)) before();
 void before(){
     current = co_start("main", NULL, NULL);
     current->status = CO_RUNNING;
-    
+    current->waiter = NULL;
 }
