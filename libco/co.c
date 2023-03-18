@@ -170,18 +170,18 @@ void co_yield()
         // pick one routinue to run
         struct co * next=pick();
         
-        printf("cur:%s next:%s\n", current->name, next->name);
+        // printf("cur:%s next:%s\n", current->name, next->name);
         current=next;
         if(next->status == CO_NEW){
             
-            void *base = (void *)((((uintptr_t)next)-16+STACKSIZE)&~0xf); // 获取16字节对齐的地址
+            void *base = (void *)((((uintptr_t)next)-16+STACKSIZE)&~0xf); // 获取对齐的地址
             next->status = CO_RUNNING;
 
             
-            void ** retfun= base+1;
+            void ** retfun= base-sizeof(void *);
             *retfun = co_finish;
             printf("base=%p next=%p next+stacksize=%p\n" , base, next, &next->stack[STACKSIZE]);
-            stack_switch_call(base,next->func, (uintptr_t)next->arg); // 数据结构在堆上申请，低地址是结构的第一个参数，而栈是向下增长，所以要用高地址作为栈顶
+            stack_switch_call(base-sizeof(void *),next->func, (uintptr_t)next->arg); // 数据结构在堆上申请，低地址是结构的第一个参数，而栈是向下增长，所以要用高地址作为栈顶
         }
         else{
             longjmp(next->jb, 1);
