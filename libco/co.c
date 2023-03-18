@@ -168,7 +168,7 @@ static void co_finish()
         // pick one routinue to run
         struct co * next=pick();
         
-        // printf("cur:%s next:%s\n", current->name, next->name);
+        printf("cur:%s next:%s\n", current->name, next->name);
         current=next;
         if(next->status == CO_NEW){
             
