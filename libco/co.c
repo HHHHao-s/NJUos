@@ -136,6 +136,15 @@ void co_wait(struct co *co)
         {
             delete(co);
             free(co);
+            int i=0;
+            for(;i<q.size;i++){
+                if(q.array[i]->waiter == current){
+                    break;
+                }
+            }
+            if(i==q.size){
+                current->status = CO_RUNNING;
+            }
             break;
         }
         else
