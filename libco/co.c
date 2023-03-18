@@ -178,6 +178,12 @@ static void co_finish()
     }
 }
 
+void co_print(){
+    for(int i=0;i<q.size;i++){
+        printf("%s\n", q.array[i]->name);
+    }
+}
+
 void co_yield()
 {
     int val = setjmp(current->jb);
