@@ -18,7 +18,7 @@ static void work_loop(void *arg) {
     const char *s = (const char*)arg;
     for (int i = 0; i < 2; ++i) {
         
-        printf("%d", get_count());
+        printf("shit");
         add_count();
         co_yield();
     }
