@@ -1,12 +1,7 @@
 #include <common.h>
 
-
-void test(){
-  printf("niubi%d:%s\n", 1000,"cennn");
-}
-
 static void os_init() {
-  test();
+  pmm->init();
 }
 
 static void os_run() {
@@ -20,6 +15,3 @@ MODULE_DEF(os) = {
   .init = os_init,
   .run  = os_run,
 };
-
-
-
