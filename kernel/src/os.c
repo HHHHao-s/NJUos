@@ -1,7 +1,15 @@
 #include <common.h>
 
+
+void test(){
+  char buf[1024];
+  itoa(buf,1000);
+  putstr(buf);
+
+}
+
 static void os_init() {
-  pmm->init();
+  test();
 }
 
 static void os_run() {
@@ -15,3 +23,6 @@ MODULE_DEF(os) = {
   .init = os_init,
   .run  = os_run,
 };
+
+
+
