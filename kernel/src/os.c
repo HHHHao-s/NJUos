@@ -3,7 +3,7 @@
 
 void test(){
   char buf[1024];
-  itoa(buf,1000);
+  itoa(buf,1056456460);
   putstr(buf);
 
 }
