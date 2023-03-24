@@ -2,10 +2,7 @@
 
 
 void test(){
-  char buf[1024];
-  itoa(buf,1056456460);
-  putstr(buf);
-
+  printf("niubi%d:%s\n", 1000,"cennn");
 }
 
 static void os_init() {
