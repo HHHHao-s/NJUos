@@ -19,6 +19,26 @@ int abs(int x) {
   return (x < 0 ? -x : x);
 }
 
+
+int itoa(char *a, int i){// return strlen
+  char buf[1024];
+  char *p = buf;
+  int count = 0;
+  int n=0;
+  while(i>0){
+    n=i%10;
+    *p++ = n+'0';
+    i/=10;
+    count++;
+  }
+  for(;p-->buf;){
+    *a++ = *p;
+  }
+  *a = '\0';
+  return count;
+}
+
+
 int atoi(const char* nptr) {
   int x = 0;
   while (*nptr == ' ') { nptr ++; }
