@@ -1,38 +1,457 @@
 #include <common.h>
 
+
+
 #define ALIGNMENT 8
 
-/* rounds up to the nearest multiple of ALIGNMENT */
-#define ALIGN(size) (((size) + (ALIGNMENT - 1)) & ~0x7)
+typedef void *Blockptr_t;
 
-#define SIZE_T_SIZE (sizeof(size_t))
+#define PAGESIZE 4096
+#define BIGBIT 0x80000000
+#define NBP(bp, pos, i) ((Blockptr_t *)(bp) + ((i) * (1 << (pos)) / sizeof(Blockptr_t))) // the i of one block
+#define NEXT(p) (*(Blockptr_t *)(p))
+#define SETNEXT(p, np) ((*(Blockptr_t *)(p)) = (np))
 
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-#define PACK(size, alloc) ((size) | (alloc))
 
-#define GET(p) (*(size_t *)(p))
-#define PUT(p, val) (*(size_t *)(p) = (size_t)(val))
 
-#define PUT_PTR(p, ptr) (*(void **)(p) = (void *)(ptr))
+static inline char _log2(size_t size)
+{ // return round up pos, pos is the position of bitvector
+    int pos = 0;
+    while (size > 1 << pos)
+    {
+        pos++;
+    }
+    return pos;
+}
 
-#define GET_SIZE(p) ((*(size_t *)(p)) & (size_t)~0x7)
-#define GET_ALLOC(p) ((*(size_t *)(p)) & 0x1)
-#define HDRP(bp) ((char *)(bp)-SIZE_T_SIZE)
-#define FTRP(bp) ((char *)(bp) + GET_SIZE(HDRP(bp)) - 2 * SIZE_T_SIZE)
+static unsigned int PAGEPOS;
 
-// given bp, get next or previous bp
-#define NEXT_BLK(bp) ((char *)(bp) + GET_SIZE(((char *)(bp)-SIZE_T_SIZE)))
-#define PREV_BLK(bp) ((char *)(bp)-GET_SIZE(((char *)(bp)-2 * SIZE_T_SIZE)))
+Blockptr_t sizehead[32] = {NULL}; // from 8 to PAGESIZE/2 once init, last forever indentified by pos
+Blockptr_t pagehead = NULL;       // list of unused page, once init, last forever
+// Blockptr_t spanhead = NULL;
 
-#define SUCC_ADD(bp) (((void **)(bp)) + 1) // the successor pointer
-#define PRED_ADD(bp) (((void **)(bp)))     // the predecessor pointer
+typedef struct _node
+{
+    void *start;
+    unsigned int usedORbitpos_bigORlen;
 
-#define SUCC_BLK(bp) (*((void **)(SUCC_ADD(bp)))) // the successor block address
-#define PRED_BLK(bp) (*((void **)(PRED_ADD(bp)))) // the predecessor block address
+} Page; // every page size is PAGESIZE
 
-static void *head = NULL; // the head of free list
+struct
+{
+    Page PageArray[1 << 25]; // i think that's enough to manage the whole memory
+    size_t len;
+} Manager;
+
+
+
+void *heaptop;
+
+
+
+
+void managererr(size_t index, void *bp)
+{
+    printf("getinfobybp len:%d index:%d bp:%p\n", Manager.len, index, bp);
+}
+
+Page getinfobybp(void *bp)
+{ // get block information by bp
+    size_t index = (bp - Manager.PageArray[0].start) / PAGESIZE;
+    if (index > Manager.len)
+    {
+        managererr(index, bp);
+    }
+
+    return Manager.PageArray[index];
+}
+
+void setinfobybp(void *bp, Page info)
+{
+    size_t index = (bp - Manager.PageArray[0].start) / PAGESIZE;
+    if (index > Manager.len)
+    {
+        managererr(index, bp);
+    }
+
+    Manager.PageArray[index] = info;
+}
+
+static inline int istop(void *bp)
+{ // return 1 if the page of bp is one the top of heap
+    return ((bp - Manager.PageArray[0].start) / PAGESIZE == Manager.len - 1);
+}
+
+void check(int pos)
+{
+    printf("checking %d\n", pos);
+    for (Blockptr_t p = sizehead[pos]; p; p = NEXT(p))
+    {
+        printf("%p ", p);
+    }
+    printf("\n");
+}
+
+void checklist(){
+    Blockptr_t p = pagehead;
+    for(;p;p=NEXT(p)){
+        printf("->%p", p);
+    }
+}
+
+void *mem_sbrk(size_t size){
+    void *ret = heaptop;
+    if(size+heaptop > heap.end){
+        return NULL;
+    }
+    heaptop+=size;
+    return ret;
+}
+
+
+void *allocpage(unsigned int usedORbitpos_bigORlen)
+{ // use sbrk and register this page
+
+    void *p = mem_sbrk(PAGESIZE);
+    Manager.PageArray[Manager.len++] = (Page){.start = p, .usedORbitpos_bigORlen = usedORbitpos_bigORlen};
+
+    return p;
+}
+
+void *getpage(unsigned int usedORbitpos_bigORlen)
+{ // get one page from page list for use
+
+    if (pagehead == NULL)
+    {
+
+        return allocpage(usedORbitpos_bigORlen);
+    }
+    else
+    {
+        void *pret = pagehead;
+        setinfobybp(pret, (Page){.start = pret, .usedORbitpos_bigORlen = usedORbitpos_bigORlen});
+        pagehead = NEXT(pret);
+        return pret; // return the second page of list
+    }
+    return NULL;
+}
+
+void *acquireonepage(int pos)
+{ // acquire one initialized page
+
+    unsigned int usedORbitpos_bigORlen = 1 | (1 << pos);
+
+    Blockptr_t *p = getpage(usedORbitpos_bigORlen); // get one page for use
+    if (pos < PAGEPOS)
+    { // need to do sth.
+        for (int i = 0; i < PAGESIZE / (1 << pos) - 1; i++)
+        {
+            SETNEXT(NBP(p, pos, i), NBP(p, pos, i + 1));
+        }
+        SETNEXT(NBP(p, pos, PAGESIZE / (1 << pos) - 1), NULL);
+    }
+
+    return p;
+}
+
+int mm_init(void)
+{
+    PAGEPOS = _log2(PAGESIZE);
+    Manager.len = 0;
+    Manager.PageArray[0] = (Page){.start = NULL, .usedORbitpos_bigORlen = 0};
+    pagehead = NULL;
+
+    for (int i = 3; i < PAGEPOS; i++)
+    {
+        sizehead[i] = acquireonepage(i);
+    }
+
+    return 0;
+}
+
+void *smallfind(int pos)
+{ // from one list find one bp
+
+    if (NEXT(sizehead[pos]) == NULL)
+    { // only head
+        Blockptr_t *p = acquireonepage(pos);
+        SETNEXT(sizehead[pos], p);
+    }
+
+    Blockptr_t pret = NEXT(sizehead[pos]);
+    if (pret != NULL)
+    {
+        SETNEXT(sizehead[pos], NEXT(pret));
+    }
+    else
+    {
+        printf("smallfind error!!!\n");
+    }
+
+    return pret;
+}
+
+
+void *adjustpages(int pages,void *pto){
+    for(int i=0;i<pages-1;i++){
+        SETNEXT(pto, pto+PAGESIZE);
+        setinfobybp(pto, (Page){.start = pto,.usedORbitpos_bigORlen=0});
+        pto = pto+PAGESIZE;
+    }
+    SETNEXT(pto, NULL);
+    setinfobybp(pto, (Page){.start = pto,.usedORbitpos_bigORlen=0});
+    return pto;
+}
+
+void *bigfind(int pages)
+{ // need how many pages
+
+    Blockptr_t ret = NULL, pret = NULL; // pret is the previou of ret
+    if (pagehead == NULL)
+    {
+        ret = allocpage(pages | (BIGBIT));
+        for (int i = 1; i < pages; i++)
+        {
+            allocpage(BIGBIT | 1); // used and big, in free , it is an error
+        }
+    }
+    else
+    {
+        int count = 1;
+        Blockptr_t p = NEXT(pagehead), lp = pagehead, llp = NULL;
+        ret = lp;
+
+        while (p)
+        { // find continuous pages
+            if (lp + PAGESIZE == p) // continuous
+            {
+                if (count == 1)
+                { // at the begining
+                    count++;
+                    pret = llp;
+                    ret = lp; // maybe is the begining of pages
+                }
+                else
+                {
+                    count++;
+                }
+                if (pages == count)
+                    break;
+            }
+            else
+            { // not continuous
+                ret = p;
+                pret = lp;
+                count = 1;
+            }
+            llp = lp;
+            lp = p;
+            p = NEXT(p);
+        }
+
+        if (count == pages)
+        { // there is more place or is just pages
+            if (ret == pagehead)
+            {
+                pagehead = NEXT(p); // p is NULL or other
+            }
+            else
+            {
+                SETNEXT(pret, NEXT(p)); // if ret != pagehead, then pret is not NULL
+            }
+        }
+        else // p==NULL
+        {
+            
+            if (istop(lp))
+            {
+                int last = pages - count;
+                
+                for (int i = 0; i < last; i++)
+                {
+                    allocpage(BIGBIT | 1);
+                }
+                
+                if (ret == pagehead)
+                {
+                    pagehead = NULL;
+                }
+                else
+                {
+                    SETNEXT(pret, NULL);
+                }
+            }else{
+                ret = allocpage(pages | (BIGBIT));
+                
+                for (int i = 0; i < pages; i++)
+                {
+                    allocpage(BIGBIT | 1); // used and big, in free , it is an error
+                }
+                if(pret != NULL)
+                SETNEXT(pret, NULL);
+            }
+        }
+    }
+    if(ret != NULL)setinfobybp(ret, (Page){.start=ret,.usedORbitpos_bigORlen = (BIGBIT)|(pages)}) ;
+    return ret;
+}
+
+/*
+ * mm_malloc - Allocate a block by incrementing the brk pointer.
+ *     Always allocate a block whose size is a multiple of the alignment.
+ */
+void *mm_malloc(size_t size)
+{
+    int pos = _log2(size) > 3 ? _log2(size) : 3; // min is 3(_log2(8))
+    void *ret = NULL;
+    if (size > 1 << 24)
+    {
+        return NULL;
+    }
+
+    if (pos < PAGEPOS)
+    {
+        ret = smallfind(pos);
+    }
+    else if (pos == PAGEPOS)
+    { // need one page
+        ret = getpage(1 | (1 << PAGEPOS));
+    }
+    else
+    {
+        ret = bigfind((size + PAGESIZE - 1) / PAGESIZE);
+    }
+
+    return ret;
+}
+
+/*
+ * mm_free - Freeing a block does nothing.
+ */
+void mm_free(void *bp)
+{
+    Page info = getinfobybp(bp);
+
+    unsigned int big = info.usedORbitpos_bigORlen & (BIGBIT); // bigbit
+    if (!big)
+    {
+        unsigned int used = info.usedORbitpos_bigORlen & 1; // is used?
+
+        if (used == 0)
+        {
+            printf("free error");
+            return;
+        } // there is no way to be there
+
+        unsigned int posbit = info.usedORbitpos_bigORlen & ~1; // posbit
+
+        int pos = _log2(posbit);
+        if (pos < PAGEPOS)
+        {
+            Blockptr_t p = sizehead[pos];
+            Blockptr_t lp = NULL;
+            for (; p && bp > p; p = NEXT(p))
+            { // 找到正确的位置，可能是中间，也可能是最后
+                lp = p;
+            }
+            if (p && bp < p)
+            {
+                SETNEXT(lp, bp);
+                SETNEXT(bp, p);
+            }
+            else if (!p)
+            { // end of list
+                SETNEXT(lp, bp);
+                SETNEXT(bp, NULL);
+            }
+        }
+        else
+        {
+            Blockptr_t p = pagehead;
+            Blockptr_t lp = NULL;
+            if (p == NULL)
+            {
+                pagehead = bp;
+                SETNEXT(pagehead, NULL);
+            }
+            else
+            {
+                if (p < bp)
+                {
+                    for (; p && bp > p; p = NEXT(p))
+                    { // 找到正确的位置，可能是中间，也可能是最后
+                        lp = p;
+                    }
+
+                    if (p && bp < p)
+                    {
+                        SETNEXT(lp, bp);
+                        SETNEXT(bp, p);
+                    }
+                    else if (!p)
+                    { // end of list
+                        SETNEXT(lp, bp);
+                        SETNEXT(bp, NULL);
+                    }
+                }
+                else
+                { // bp < p
+
+                    SETNEXT(bp, pagehead);
+                    pagehead = bp;
+                }
+            }
+            setinfobybp(bp, (Page){.start = bp, .usedORbitpos_bigORlen = 0});
+        }
+    }
+    else
+    {
+        int pages = info.usedORbitpos_bigORlen & (~(BIGBIT));
+        void *pend = adjustpages(pages, bp); 
+        
+    
+        if (pagehead == NULL)
+        {
+            pagehead = bp;
+      
+            SETNEXT(pend,NULL);
+                        
+        }
+        else
+        {   
+            
+            if (pagehead < bp)
+            {
+                Blockptr_t p = pagehead;
+                Blockptr_t lp = NULL;
+                for (; p && bp > p; p = NEXT(p))
+                { // 找到正确的位置，可能是中间，也可能是最后
+                    lp = p;
+                }
+                // bp is between lp and p
+
+                SETNEXT(lp,bp);
+               
+                SETNEXT(pend,p);
+                               
+            }
+            else
+            { // bp < p
+
+                SETNEXT(pend, pagehead);
+                pagehead = bp;
+
+            }
+        }
+        
+    }
+    // checklist();
+}
+
+
 
 static int bin_lock;
+
 
 static void lock()
 {
@@ -45,146 +464,12 @@ static void unlock()
     atomic_xchg(&bin_lock, 0);
 }
 
-static void *place(size_t size)
-{
 
-    void *bp = head;
-    while (GET_ALLOC(HDRP(bp)) == 1 || GET_SIZE(HDRP(bp)) < size)
-    {
-
-        bp = SUCC_BLK(bp);
-        if (bp == NULL)
-        {
-            return NULL;
-        }
-    }
-    // get an unalloc address
-    size_t csize = GET_SIZE(HDRP(bp)) - size;
-
-    if (csize < 4 * SIZE_T_SIZE)
-    {
-        PUT(HDRP(bp), PACK(GET_SIZE(HDRP(bp)), 1));
-        PUT(FTRP(bp), PACK(GET_SIZE(HDRP(bp)), 1));
-
-        void *pred_bp = PRED_BLK(bp);
-        void *succ_bp = SUCC_BLK(bp);
-
-        if (succ_bp != NULL)
-            PUT_PTR(PRED_ADD(succ_bp), pred_bp);
-        if (pred_bp != NULL)
-            PUT_PTR(SUCC_ADD(pred_bp), succ_bp);
-    }
-    else
-    {
-        PUT(HDRP(bp), PACK(size, 1));
-        PUT(FTRP(bp), PACK(size, 1));
-
-        void *pred_bp = PRED_BLK(bp);
-        void *succ_bp = SUCC_BLK(bp);
-
-        void *next_bp = NEXT_BLK(bp);
-
-        PUT(HDRP(next_bp), PACK(csize, 0));
-        PUT(FTRP(next_bp), PACK(csize, 0));
-
-        PUT_PTR(PRED_ADD(next_bp), pred_bp);
-        PUT_PTR(SUCC_ADD(next_bp), succ_bp);
-
-        if (succ_bp != NULL)
-            PUT_PTR(PRED_ADD(succ_bp), next_bp);
-        if (pred_bp != NULL)
-            PUT_PTR(SUCC_ADD(pred_bp), next_bp);
-    }
-
-    return bp;
-}
-
-static void coalesce(void *bp)
-{
-    char prealloc, nextalloc;
-    void *prebp = PREV_BLK(bp), *nextbp = NEXT_BLK(bp);
-    prealloc = GET_ALLOC(HDRP(prebp));
-    nextalloc = GET_ALLOC(HDRP(nextbp));
-
-    size_t cursize = GET_SIZE(HDRP(bp));
-
-    if (prealloc == 1 && nextalloc == 1)
-    {
-
-        if ((size_t)head > (size_t)bp)
-        {
-
-            PUT_PTR(SUCC_ADD(bp), head);
-            PUT_PTR(PRED_ADD(bp), NULL);
-
-            PUT_PTR(PRED_ADD(bp), bp);
-            head = bp;
-        }
-        else
-        {
-            void *p1 = NULL, *p2 = head; // for use
-            p2 = head;
-
-            while (p2 < bp && p2 != NULL)
-            { // find two blocks that bp between which
-                p1 = p2;
-                p2 = SUCC_BLK(p2);
-            }
-
-            PUT_PTR(SUCC_ADD(p1), bp);
-
-            if (p2 != NULL)
-                PUT_PTR(PRED_ADD(p2), bp);
-
-            PUT_PTR(PRED_ADD(bp), p1);
-            PUT_PTR(SUCC_ADD(bp), p2);
-        }
-    }
-    else if (prealloc == 0 && nextalloc == 1)
-    {
-        size_t size = cursize + GET_SIZE(HDRP(prebp));
-        PUT(HDRP(prebp), PACK(size, 0));
-        PUT(FTRP(prebp), PACK(size, 0));
-    }
-    else if (prealloc == 1 && nextalloc == 0)
-    {
-        size_t size = cursize + GET_SIZE(HDRP(nextbp));
-        PUT(HDRP(bp), PACK(size, 0));
-        PUT(FTRP(bp), PACK(size, 0));
-
-        PUT_PTR(PRED_ADD(bp), PRED_BLK(nextbp));
-        PUT_PTR(SUCC_ADD(bp), SUCC_BLK(nextbp));
-
-        if (SUCC_BLK(nextbp) != NULL)
-        {
-            PUT_PTR(PRED_ADD(SUCC_BLK(nextbp)), bp);
-        }
-        if (PRED_BLK(nextbp) != NULL)
-        {
-            PUT_PTR(SUCC_ADD(PRED_BLK(nextbp)), bp);
-        }
-
-        if (head == nextbp)
-            head = bp;
-    }
-    else
-    {
-        size_t size = cursize + GET_SIZE(HDRP(prebp)) + GET_SIZE(HDRP(nextbp));
-        PUT(HDRP(prebp), PACK(size, 0));
-        PUT(FTRP(prebp), PACK(size, 0));
-
-        PUT_PTR(SUCC_ADD(prebp), SUCC_BLK(nextbp));
-        if (SUCC_BLK(nextbp) != NULL)
-            PUT_PTR(SUCC_ADD(SUCC_BLK(nextbp)), prebp);
-    }
-    return;
-}
 
 static void *kalloc(size_t size)
 {
     lock();
-    size_t newsize = ALIGN(size + 4 * SIZE_T_SIZE); // DSIZE is the minimum size of a block
-    void *ret = place(newsize);
+    void *ret = mm_malloc(size);
     unlock();
     return ret;
 }
@@ -192,29 +477,17 @@ static void *kalloc(size_t size)
 static void kfree(void *bp)
 {
 
-    if (GET_ALLOC(HDRP(bp)) == 1)
-    {   lock();
-        PUT(HDRP(bp), PACK(GET_SIZE(HDRP(bp)), 0));
-        PUT(FTRP(bp), PACK(GET_SIZE(HDRP(bp)), 0)); // alloc then free
-        PUT(SUCC_ADD(bp), NULL);
-        PUT(PRED_ADD(bp), NULL);
-        coalesce(bp);
-        unlock();
-    }
+    lock();
+    mm_free(bp);
+    unlock();
 }
 
 static void pmm_init()
 {
-    void *plo = heap.start;
+    heaptop = heap.start;
 
-    PUT(plo + 1 * SIZE_T_SIZE, PACK(4 * SIZE_T_SIZE, 1));
-    PUT(plo + 4 * SIZE_T_SIZE, PACK(4 * SIZE_T_SIZE, 1));
-    PUT_PTR(plo + 2 * SIZE_T_SIZE, NULL);
-    PUT_PTR(plo + 3 * SIZE_T_SIZE, NULL);
+    mm_init();
 
-    PUT(plo + 5 * SIZE_T_SIZE, PACK(0, 1));
-
-    head = plo + 2 * SIZE_T_SIZE;
 
 }
 
