@@ -7,6 +7,7 @@ static void os_init() {
 
 static void os_run() {
   void * p=pmm->alloc(1000);
+  printf("heap.start = %p\n", heap.start);
   printf("66666%p", p);
   pmm->free(p);
   
