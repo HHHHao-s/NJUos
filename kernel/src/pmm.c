@@ -27,14 +27,14 @@ void unlock(){atomic_xchg(&bin_lock, 0);};
 
 static void *kalloc(size_t size) {
   lock();
-  // void *ret = mm_malloc(size);
+  void *ret = mm_malloc(size);
   unlock();
-  return NULL;
+  return ret;
 }
 
 static void kfree(void *ptr) {
   lock();
-  // mm_free(ptr);
+  mm_free(ptr);
   unlock();
 }
 
