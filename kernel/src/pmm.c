@@ -43,6 +43,11 @@ static void pmm_init() {
   mm_init();
 }
 
+MODULE_DEF(pmm) = {
+  .init  = pmm_init,
+  .alloc = kalloc,
+  .free  = kfree,
+};
 
 
 void *mem_sbrk(size_t size){
@@ -477,9 +482,3 @@ void mm_free(void *bp)
     }
     // checklist();
 }
-
-MODULE_DEF(pmm) = {
-  .init  = pmm_init,
-  .alloc = kalloc,
-  .free  = kfree,
-};
