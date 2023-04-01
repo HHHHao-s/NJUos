@@ -83,7 +83,7 @@ typedef struct _node
 
 struct
 {
-    Page PageArray[1 << 10]; // i think that's enough to manage the whole memory
+    Page PageArray[1 << 20]; // i think that's enough to manage the whole memory
     size_t len;
 } Manager;
 
