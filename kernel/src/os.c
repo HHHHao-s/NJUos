@@ -2,6 +2,9 @@
 
 static void os_init() {
   ioe_init();
+  for (const char *s = "Hello World from CPU #*\n"; *s; s++) {
+    putch(*s == '*' ? '0' : *s);
+  }
   pmm->init();
 
 }
