@@ -1,5 +1,17 @@
 #include <common.h>
 
+
+#define ALIGNMENT 8
+
+typedef void *Blockptr_t;
+/* rounds up to the nearest multiple of ALIGNMENT */
+#define PAGESIZE 4096
+#define BIGBIT 0x80000000
+#define NBP(bp, pos, i) ((Blockptr_t *)(bp) + ((i) * (1 << (pos)) / sizeof(Blockptr_t))) // the i of one block
+#define NEXT(p) (*(Blockptr_t *)(p))
+#define SETNEXT(p, np) ((*(Blockptr_t *)(p)) = (np))
+#define exit(code) halt(code)
+
 int mm_init (void);
 void *mm_malloc (size_t size);
 void mm_free (void *ptr);
@@ -48,16 +60,7 @@ void *mem_sbrk(size_t size){
 }
 
 
-#define ALIGNMENT 8
 
-typedef void *Blockptr_t;
-/* rounds up to the nearest multiple of ALIGNMENT */
-#define PAGESIZE 4096
-#define BIGBIT 0x80000000
-#define NBP(bp, pos, i) ((Blockptr_t *)(bp) + ((i) * (1 << (pos)) / sizeof(Blockptr_t))) // the i of one block
-#define NEXT(p) (*(Blockptr_t *)(p))
-#define SETNEXT(p, np) ((*(Blockptr_t *)(p)) = (np))
-#define exit(code) halt(code)
 
 static inline char _log2(size_t size)
 { // return round up pos, pos is the position of bitvector
