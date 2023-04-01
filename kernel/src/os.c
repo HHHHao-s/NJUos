@@ -7,7 +7,9 @@ static void os_init() {
 
 static void os_run() {
   void * p=pmm->alloc(10000);
+  printf("%p", p);
   pmm->free(p);
+  
 }
 
 MODULE_DEF(os) = {
