@@ -1,13 +1,15 @@
 #include <common.h>
 
 static void os_init() {
-  ioe_init();
   pmm->init();
+  kmt->init();
 }
 
 static void os_run() {
-  while (1);
-  
+  for (const char *s = "Hello World from CPU #*\n"; *s; s++) {
+    putch(*s == '*' ? '0' + cpu_current() : *s);
+  }
+  while (1) ;
 }
 
 MODULE_DEF(os) = {
