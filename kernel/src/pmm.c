@@ -50,8 +50,9 @@ MODULE_DEF(pmm) = {
 };
 
 
-void *mem_sbrk(size_t size){
+void *mem_sbrk(size_t size){ // return old heap_top, and increment by size
   if(size + heap_top > heap.end){
+    panic("no space in heap");
     return NULL;
   }else{
     void *old_heap_top = heap_top;
@@ -76,7 +77,7 @@ static inline char _log2(size_t size)
 static unsigned int PAGEPOS;
 
 Blockptr_t sizehead[32] = {NULL}; // from 8 to PAGESIZE/2 once init, last forever indentified by pos
-Blockptr_t pagehead = NULL;       // list of unused page, once init, last forever
+Blockptr_t pagehead = NULL;       // list of unused page, would be NULL
 // Blockptr_t spanhead = NULL;
 
 typedef struct _node
@@ -88,7 +89,7 @@ typedef struct _node
 
 struct
 {
-    Page PageArray[1 << 10]; // i think that's enough to manage the whole memory
+    Page* PageArray; // i think that's enough to manage the whole memory
     size_t len;
 } Manager;
 
@@ -191,9 +192,12 @@ void *acquireonepage(int pos)
 
 int mm_init(void)
 {
+
+
     PAGEPOS = _log2(PAGESIZE);
     Manager.len = 0;
-    Manager.PageArray[0] = (Page){.start = NULL, .usedORbitpos_bigORlen = 0};
+    Manager.PageArray = mem_sbrk(1<<12*(sizeof(Page)));// can manage 4k pages
+     
     pagehead = NULL;
 
     for (int i = 3; i < PAGEPOS; i++)
