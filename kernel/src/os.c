@@ -21,7 +21,7 @@ static void os_init() {
   taskarr->len = 0;
   
   for(int i=0;i<10;i++){
-    task_t *task = malloc(sizeof(task_t));
+    task_t *task = pmm->alloc(sizeof(task_t));
     task->entry = os_run;
     Area stack    = (Area) { &task->stack, task + 1 };
     task->context = kcontext(stack, task->entry, NULL);
