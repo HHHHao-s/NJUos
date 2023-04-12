@@ -32,8 +32,8 @@ static void os_init() {
     task_t *task =  taskarr->tasks[i];
     
     task->next =  taskarr->tasks[(i+1)% taskarr->len];
-
   }
+  yield();
 }
 
 static void os_run(void *num) {
