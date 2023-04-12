@@ -28,7 +28,7 @@ static void os_init() {
     task->next    = NULL;
     taskarr->tasks[taskarr->len++] = task;
   }
-  for(int i=0;i<10;i++){
+  for(int i=0;i<9;i++){
     task_t *task =  taskarr->tasks[i];
     
     task->next =  taskarr->tasks[(i+1)% taskarr->len];
