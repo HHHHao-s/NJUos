@@ -89,7 +89,7 @@ static Context * os_trap(Event ev, Context *context){// 在此处，状态已经
 
 // 将handler插入到以seq排序的链表
 static void os_irq(int seq, int event, handler_t handler){
-  handler_node * add = malloc(sizeof(handler_node));
+  handler_node * add = pmm->alloc(sizeof(handler_node));
   *add = (handler_node){seq,event,handler,NULL};
   if(handler_head == NULL){
     handler_head = add;
