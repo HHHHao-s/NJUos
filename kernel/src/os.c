@@ -20,11 +20,11 @@ static void os_init() {
   }
   taskarr->len = 0;
   
-  for(int i=0;i<10;i++){
+  for(int64_t i=0;i<10;i++){
     task_t *task = pmm->alloc(sizeof(task_t));
     task->entry = os_run;
     Area stack    = (Area) { &task->stack, task + 1 };
-    task->context = kcontext(stack, task->entry, NULL);
+    task->context = kcontext(stack, task->entry, (void *)i);
     task->next    = NULL;
     taskarr->tasks[taskarr->len++] = task;
   }
@@ -36,13 +36,23 @@ static void os_init() {
   }
 }
 
-static void os_run() {
+static void os_run(void *num) {
+
   while (1){
-    putch(cpu_current()-'0');
+    putch((int64_t)num);
     for (int volatile i = 0; i < 100000; i++) ; // sleep
   }
 
 }
+
+// static void test(void *num) {
+
+//   while (1){
+//     putch((int64_t)num);
+//     for (int volatile i = 0; i < 100000; i++) ; // sleep
+//   }
+
+// }
 
 
 static Context *inter_handler(Event ev, Context *ctx){
