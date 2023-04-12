@@ -18,5 +18,6 @@ void kmt_init(){
 
 
 MODULE_DEF(kmt) = {
- .init = 
+ .init = kmt_init,
+ 
 };

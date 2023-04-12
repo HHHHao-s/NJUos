@@ -1,18 +1,116 @@
-#include <common.h>
+// #include <common.h>
+#include <os.h>
+
+static void os_run();
+static Context * os_trap(Event ev, Context *context);
+static void os_irq(int seq, int event, handler_t handler);
+static Context *inter_handler(Event ev, Context *ctx);
+static Context *yield_handler(Event ev, Context *ctx);
+
+// extern struct task;
 
 static void os_init() {
   pmm->init();
+  os_irq(100, EVENT_IRQ_TIMER, inter_handler);
+  os_irq(100, EVENT_YIELD, yield_handler);
   kmt->init();
+
+  for(int i=0;i<MAX_TASKS;i++){
+    taskarr->tasks[i] = NULL;
+  }
+  taskarr->len = 0;
+  
+  for(int i=0;i<10;i++){
+    task_t *task = malloc(sizeof(task_t));
+    task->entry = os_run;
+    Area stack    = (Area) { &task->stack, task + 1 };
+    task->context = kcontext(stack, task->entry, NULL);
+    task->next    = NULL;
+    taskarr->tasks[taskarr->len++] = task;
+  }
+  for(int i=0;i<10;i++){
+    task_t *task =  taskarr->tasks[i];
+    
+    task->next =  taskarr->tasks[(i+1)% taskarr->len];
+
+  }
 }
 
 static void os_run() {
-  for (const char *s = "Hello World from CPU #*\n"; *s; s++) {
-    putch(*s == '*' ? '0' + cpu_current() : *s);
+  while (1){
+    putch(cpu_current()-'0');
+    for (int volatile i = 0; i < 100000; i++) ; // sleep
   }
-  while (1) ;
+
+}
+
+
+static Context *inter_handler(Event ev, Context *ctx){
+  yield(); // 将执行到这里的状态保存起来，待调用
+  return ctx;
+
+
+}
+
+static Context *yield_handler(Event ev, Context *ctx){
+  //save
+  
+  if(current_task == NULL) current_task = taskarr->tasks[0];
+  else {
+    current_task->context = ctx;
+    current_task->status = RUNNABLE;
+  }
+  //schedule
+  do{
+    current_task=current_task->next;
+  }while (current_task->status!=RUNNABLE);
+  
+  return current_task->context;
+  
+}
+
+
+
+// 中断发生后会到此处
+static Context * os_trap(Event ev, Context *context){// 在此处，状态已经被保存在context
+  Context *next = NULL;
+  for (handler_node *h=handler_head;;h=h->next) {
+    if (h->event == EVENT_NULL || h->event == ev.event) {
+      Context *r = h->handler(ev, context); // 用os_irq注册的handler
+      panic_on(r && next, "returning multiple contexts");
+      if (r) next = r;
+    }
+  }
+  panic_on(!next, "returning NULL context");
+  // panic_on(sane_context(next), "returning to invalid context");// 检查next（不检查了）
+  return next;
+}
+
+
+// 将handler插入到以seq排序的链表
+static void os_irq(int seq, int event, handler_t handler){
+  handler_node * add = malloc(sizeof(handler_node));
+  *add = (handler_node){seq,event,handler,NULL};
+  if(handler_head == NULL){
+    handler_head = add;
+  }else{
+    if(handler_head->seq > add->seq){
+      add->next = handler_head;
+      handler_head = add;
+    }else{
+      handler_node * temp = handler_head;
+      while(temp->next != NULL && temp->next->seq < add->seq){
+        temp = temp->next;
+      }
+      add->next = temp->next;
+      temp->next = add;
+    }
+  }
 }
 
 MODULE_DEF(os) = {
   .init = os_init,
   .run  = os_run,
+  .trap = os_trap,
+  .on_irq = os_irq
 };

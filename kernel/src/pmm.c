@@ -196,7 +196,7 @@ int mm_init(void)
 
     PAGEPOS = _log2(PAGESIZE);
     Manager.len = 0;
-    Manager.PageArray = mem_sbrk(1<<12*(sizeof(Page)));// can manage 4k pages
+    Manager.PageArray = mem_sbrk((1<<12)*(sizeof(Page)));// can manage 4k pages
      
     pagehead = NULL;
 

@@ -1,5 +1,8 @@
 #include <am.h>
-
+// #include <os.h>
+#define MAX_CPU 8
+#define MAX_TASKS 32
+#define current_task currents[cpu_current()]
 #define MODULE(mod) \
   typedef struct mod_##mod##_t mod_##mod##_t; \
   extern mod_##mod##_t *mod; \
@@ -11,6 +14,14 @@
   mod_##mod##_t __##mod##_obj
 
 typedef Context *(*handler_t)(Event, Context *);
+typedef struct _handler_node{
+  int seq,event;
+  handler_t handler;
+  struct _handler_node *next;
+}handler_node;// handler的链表，按照seq排序
+
+handler_node * handler_head;
+
 MODULE(os) {
   void (*init)();
   void (*run)();
@@ -27,6 +38,13 @@ MODULE(pmm) {
 typedef struct task task_t;
 typedef struct spinlock spinlock_t;
 typedef struct semaphore sem_t;
+
+task_t *currents[MAX_CPU];
+struct {
+  task_t *tasks[MAX_TASKS];
+  int len;
+}*taskarr;
+
 MODULE(kmt) {
   void (*init)();
   int  (*create)(task_t *task, const char *name, void (*entry)(void *arg), void *arg);
