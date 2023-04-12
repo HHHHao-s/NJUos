@@ -39,7 +39,7 @@ static void os_init() {
 static void os_run(void *num) {
 
   while (1){
-    putch((char)( '0'));
+    printf("%p", num);
     for (int volatile i = 0; i < 100000; i++) ; // sleep
   }
 
