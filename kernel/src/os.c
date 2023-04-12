@@ -39,7 +39,7 @@ static void os_init() {
 static void os_run(void *num) {
 
   while (1){
-    putch(cpu_current()+'0');
+    putch((int64_t)num+'0');
     for (int volatile i = 0; i < 100000; i++) ; // sleep
   }
 
