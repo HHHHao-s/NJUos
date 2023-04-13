@@ -6,6 +6,11 @@ static Context * os_trap(Event ev, Context *context);
 static void os_irq(int seq, int event, handler_t handler);
 static Context *inter_handler(Event ev, Context *ctx);
 static Context *yield_handler(Event ev, Context *ctx);
+spinlock_t print_lock;
+#define atom_printf(...)  \
+  kmt->spin_lock(&print_lock);\
+  printf(__VA_ARGS__);\
+  kmt->spin_unlock(&print_lock)
 
 // extern struct task;
 
@@ -14,6 +19,12 @@ static void os_init() {
   os_irq(100, EVENT_IRQ_TIMER, inter_handler);
   os_irq(100, EVENT_YIELD, yield_handler);
   kmt->init();
+
+  
+  kmt->spin_init(&print_lock,"print_lock");
+
+
+
   // for(int i=0;i<MAX_TASKS;i++){
   //   taskarr->tasks[i] = NULL;
   // }
@@ -39,11 +50,11 @@ static void os_init() {
 }
 
 static void os_run() {
+  
+  atom_printf("os_run() from %d CPU", cpu_current());
   iset(true);// 开中断
-  while (1){
-    putch('0');
-    for (int volatile i = 0; i < 100000; i++) ; // sleep
-  }
+  while (1);
+  
 
 }
 
@@ -68,7 +79,9 @@ static Context *inter_handler(Event ev, Context *ctx){
 static Context *yield_handler(Event ev, Context *ctx){
   //save
   putch('y');
-  if(current_task == NULL) current_task = taskarr->tasks[0];
+  if(current_task == NULL){
+    // P 一个task来做
+  }
   else {
     current_task->context = ctx;
     current_task->status = RUNNABLE;

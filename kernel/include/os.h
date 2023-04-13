@@ -3,7 +3,6 @@
 
 
 struct task {
-  // TODO
   int id;
   enum {
     RUNNING = 1,
@@ -21,9 +20,13 @@ struct task {
 
 
 struct spinlock {
-  // TODO
+  
+  int lock;// 锁
+  const char *name;
 };
 
 struct semaphore {
-  // TODO
+  struct spinlock bin_lock; // 自旋锁
+  int val;// 量
+  const char *name; 
 };
