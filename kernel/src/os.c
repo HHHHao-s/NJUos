@@ -51,7 +51,7 @@ static void os_init() {
 
 static void os_run() {
   int cpu = cpu_current();
-  printf("%d",6);
+  printf("%d",0);
   atom_printf("os_run() from %d CPU", cpu);
   iset(true);// 开中断
   while (1);
