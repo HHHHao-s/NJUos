@@ -14,7 +14,6 @@ static void os_init() {
   os_irq(100, EVENT_IRQ_TIMER, inter_handler);
   os_irq(100, EVENT_YIELD, yield_handler);
   kmt->init();
-  putch('0');
   for(int i=0;i<MAX_TASKS;i++){
     taskarr->tasks[i] = NULL;
   }
