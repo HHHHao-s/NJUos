@@ -23,6 +23,7 @@ static void os_init() {
   for(int64_t i=0;i<9;i++){ // 创建10个task
     task_t *task = pmm->alloc(sizeof(task_t));
     task->entry = os_run;
+    task->status = RUNNABLE;
     Area stack    = (Area) { &task->stack, task + 1 };
     task->context = kcontext(stack, task->entry, (void *)i);
     task->next    = NULL;
