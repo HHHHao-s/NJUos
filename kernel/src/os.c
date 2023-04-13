@@ -39,7 +39,7 @@ static void os_init() {
 }
 
 static void os_run() {
-
+  iset(true);// 开中断
   while (1){
     putch('0');
     for (int volatile i = 0; i < 100000; i++) ; // sleep
