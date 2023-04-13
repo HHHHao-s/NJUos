@@ -14,28 +14,28 @@ static void os_init() {
   os_irq(100, EVENT_IRQ_TIMER, inter_handler);
   os_irq(100, EVENT_YIELD, yield_handler);
   kmt->init();
-  for(int i=0;i<MAX_TASKS;i++){
-    taskarr->tasks[i] = NULL;
-  }
-  taskarr->len = 0;
+  // for(int i=0;i<MAX_TASKS;i++){
+  //   taskarr->tasks[i] = NULL;
+  // }
+  // taskarr->len = 0;
   
-  for(int64_t i=0;i<9;i++){ // 创建10个task
-    task_t *task = pmm->alloc(sizeof(task_t));
-    task->entry = os_run;
-    task->status = RUNNABLE;
-    Area stack    = (Area) { &task->stack, task + 1 };
-    task->context = kcontext(stack, task->entry, (void *)i);
-    task->next    = NULL;
-    taskarr->tasks[taskarr->len++] = task;
-  }
-  for(int i=0;i<9;i++){
-    task_t *task =  taskarr->tasks[i];
+  // for(int64_t i=0;i<9;i++){ // 创建10个task
+  //   task_t *task = pmm->alloc(sizeof(task_t));
+  //   task->entry = os_run;
+  //   task->status = RUNNABLE;
+  //   Area stack    = (Area) { &task->stack, task + 1 };
+  //   task->context = kcontext(stack, task->entry, (void *)i);
+  //   task->next    = NULL;
+  //   taskarr->tasks[taskarr->len++] = task;
+  // }
+  // for(int i=0;i<9;i++){
+  //   task_t *task =  taskarr->tasks[i];
     
-    task->next =  taskarr->tasks[(i+1)% taskarr->len];
-  }
-  yield();
+  //   task->next =  taskarr->tasks[(i+1)% taskarr->len];
+  // }
+  // yield();
   
-  while (1);
+  // while (1);
 }
 
 static void os_run(void *num) {
