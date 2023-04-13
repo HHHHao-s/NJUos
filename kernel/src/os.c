@@ -50,7 +50,7 @@ static void os_init() {
 }
 
 static void os_run() {
-  putch(cpu_current()+'0');
+  atom_printf("%d", cpu_current());
   atom_printf("os_run() from %d CPU", cpu_current());
   iset(true);// 开中断
   while (1);
