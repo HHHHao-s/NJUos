@@ -67,7 +67,7 @@ static Context *inter_handler(Event ev, Context *ctx){
 
 static Context *yield_handler(Event ev, Context *ctx){
   //save
-  
+  putch('y');
   if(current_task == NULL) current_task = taskarr->tasks[0];
   else {
     current_task->context = ctx;
