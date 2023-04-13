@@ -86,8 +86,8 @@ static Context *yield_handler(Event ev, Context *ctx){
 // 中断发生后会到此处
 static Context * os_trap(Event ev, Context *context){// 在此处，状态已经被保存在context
   Context *next = NULL;
-  for (handler_node *h=handler_head;;h=h->next) {
-    if (h!=NULL && h->event == ev.event) {
+  for (handler_node *h=handler_head;h;h=h->next) {
+    if (h->event == ev.event) {
       Context *r = h->handler(ev, context); // 用os_irq注册的handler
       panic_on(r && next, "returning multiple contexts");
       if (r) next = r;
