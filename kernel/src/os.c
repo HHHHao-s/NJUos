@@ -56,7 +56,7 @@ static void os_run() {
 
 // }
 
-
+// 时钟中断处理程序
 static Context *inter_handler(Event ev, Context *ctx){
   putch('i');
   yield(); // 将执行到这里的状态保存起来，待调用
@@ -95,6 +95,7 @@ static Context * os_trap(Event ev, Context *context){// 在此处，状态已经
       if (r) next = r;
     }
   }
+  putch('d');
   panic_on(!next, "returning NULL context");
   // panic_on(sane_context(next), "returning to invalid context");// 检查next（不检查了）
   return next;
