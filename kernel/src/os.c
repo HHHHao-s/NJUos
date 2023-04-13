@@ -86,6 +86,7 @@ static Context *yield_handler(Event ev, Context *ctx){
 
 // 中断发生后会到此处
 static Context * os_trap(Event ev, Context *context){// 在此处，状态已经被保存在context
+  putch('t');
   Context *next = NULL;
   for (handler_node *h=handler_head;h;h=h->next) {
     if (h->event == ev.event) {
