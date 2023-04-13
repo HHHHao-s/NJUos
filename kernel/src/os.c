@@ -58,6 +58,7 @@ static void os_run(void *num) {
 
 
 static Context *inter_handler(Event ev, Context *ctx){
+  putch('i');
   yield(); // 将执行到这里的状态保存起来，待调用
   return ctx;
 
