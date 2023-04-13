@@ -6,6 +6,6 @@ int main() {
   cte_init(os->trap);
   os->init();
   // mpe_init(os->run);
-  while (1);
+  
   return 1;
 }
