@@ -38,10 +38,10 @@ static void os_init() {
   // while (1);
 }
 
-static void os_run(void *num) {
+static void os_run() {
 
   while (1){
-    putch((int64_t)num+'0');
+    putch('0');
     for (int volatile i = 0; i < 100000; i++) ; // sleep
   }
 
