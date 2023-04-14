@@ -16,13 +16,13 @@ struct{
 
 
 
-void produce(){
+void produce(void *arg){
   P(&pool.last);
   putch('(');
   V(&pool.having);
 }
 
-void consume(){
+void consume(void *arg){
   P(&pool.having);
   putch(')');
   V(&pool.last);
@@ -45,13 +45,13 @@ static void os_init() {
 
     task_t *task = pmm->alloc(sizeof(task_t));
     char buf[32];
-    kmt->create(task,itoa(buf, i) , consume, (void *)(uint64_t)i);
+    kmt->create(task,itoa(buf, i) , consume, NULL);
   }
   for(int i=0;i<pro;i++){
 
     task_t *task = pmm->alloc(sizeof(task_t));
     char buf[32];
-    kmt->create(task,itoa(buf, i) , produce, (void *)(uint64_t)i);
+    kmt->create(task,itoa(buf, i) , produce, NULL);
   }
 
   // while(1);
