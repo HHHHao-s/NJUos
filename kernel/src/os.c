@@ -15,7 +15,7 @@ static void test(void *arg){
 
   while(1){
     putch((int64_t)(arg) + '0');
-    for(int i=0;i<1000000000;i++);
+    for(int i=0;i<10000;i++);
   }
   
 }
@@ -37,7 +37,6 @@ static void os_init() {
     kmt->create(task,itoa(buf, i) , test, (void *)(uint64_t)i);
   }
 
-  yield();
   while(1);
   
 }
