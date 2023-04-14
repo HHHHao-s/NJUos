@@ -76,7 +76,7 @@ static void os_run() {
 
 // 时钟中断处理程序
 static Context *inter_handler(Event ev, Context *ctx){
-  putch('i');
+  // putch('i');
   yield(); // 将执行到这里的状态保存起来，待调用
   return ctx;
 
@@ -85,7 +85,7 @@ static Context *inter_handler(Event ev, Context *ctx){
 
 static Context *yield_handler(Event ev, Context *ctx){
   //save
-  putch('y');
+  // putch('y');
   
   if(current_task != NULL){ 
     kmt->spin_lock(&current_task->lock);
@@ -123,7 +123,7 @@ static Context *yield_handler(Event ev, Context *ctx){
 
 // 中断发生后会到此处
 static Context * os_trap(Event ev, Context *context){// 在此处，状态已经被保存在context
-  putch('t');
+  // putch('t');
   Context *next = NULL;
   bool saved_i = ienabled();
   iset(false); // 关中断
@@ -137,7 +137,7 @@ static Context * os_trap(Event ev, Context *context){// 在此处，状态已经
   
   panic_on(!next, "returning NULL context");
   // panic_on(sane_context(next), "returning to invalid context");// 检查next（不检查了）
-  putch('d');
+  // putch('d');
   iset(saved_i);
   return next;
 }
