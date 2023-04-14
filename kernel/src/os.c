@@ -37,7 +37,7 @@ static void os_init() {
     kmt->create(task,itoa(buf, i) , test, (void *)(uint64_t)i);
   }
 
-  while(1);
+  // while(1);
   
 }
 
