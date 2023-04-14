@@ -15,7 +15,7 @@ static void test(void *arg){
 
   while(1){
     putch((int64_t)(arg) + '0');
-    for(int i=0;i<10000;i++);
+    for(int i=0;i<100000000;i++);
   }
   
 }
