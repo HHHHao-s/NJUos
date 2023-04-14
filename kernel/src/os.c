@@ -37,7 +37,7 @@ static void os_init() {
   kmt->init();
 
   kmt->sem_init(&pool.having,"pool having", 0);
-  kmt->sem_init(&pool.last,"pool having", 4);
+  kmt->sem_init(&pool.last,"pool last", 4);
 
   int con=4,pro=4;
 
