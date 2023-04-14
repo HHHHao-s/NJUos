@@ -17,12 +17,14 @@ struct{
 
 
 void produce(void *arg){
+  putch('(');
   P(&pool.last);
   putch('(');
   V(&pool.having);
 }
 
 void consume(void *arg){
+  putch(')');
   P(&pool.having);
   putch(')');
   V(&pool.last);
