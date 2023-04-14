@@ -1,32 +1,50 @@
 #include <os.h>
 
+// void (*init)();
+// int  (*create)(task_t *task, const char *name, void (*entry)(void *arg), void *arg);
+// void (*teardown)(task_t *task);
+// void (*spin_init)(spinlock_t *lk, const char *name);
+// void (*spin_lock)(spinlock_t *lk);
+// void (*spin_unlock)(spinlock_t *lk);
+// void (*sem_init)(sem_t *sem, const char *name, int value);
+// void (*sem_wait)(sem_t *sem);
+// void (*sem_signal)(sem_t *sem);
 
-void kmt_init(){
-    
-}
+static void kmt_spin_init(spinlock_t *lk, const char *name);
+static void kmt_spin_lock(spinlock_t *lk);
+static void kmt_spin_unlock(spinlock_t *lk);
+static void kmt_sem_init(sem_t *sem, const char *name, int value);
+static void kmt_sem_wait(sem_t *sem);
+static void kmt_sem_signal(sem_t *sem);
+static void kmt_init();
+static int kmt_create(task_t *task, const char *name, void (*entry)(void *arg), void *arg);
+static void kmt_teardown(task_t *task);
+int task_list_insert(task_t *task);
+void task_list_delete(task_t *task);
 
-void kmt_spin_init(spinlock_t *lk, const char *name){
+
+static void kmt_spin_init(spinlock_t *lk, const char *name){
     lk->lock = 1;
-    lk->name = name;
+    strncpy(lk->name,name,KMT_NAME_SIZE);
 }
 
-void kmt_spin_lock(spinlock_t *lk){
+static void kmt_spin_lock(spinlock_t *lk){
     while(!atomic_xchg(&lk->lock,0));
 }
 
-void kmt_spin_unlock(spinlock_t *lk){
+static void kmt_spin_unlock(spinlock_t *lk){
     panic_on(lk->lock!=0,"释放的自旋锁不是0");
     atomic_xchg(&lk->lock, 1);
 }
 
-void kmt_sem_init(sem_t *sem, const char *name, int value){
+static void kmt_sem_init(sem_t *sem, const char *name, int value){
     kmt_spin_init(&sem->bin_lock,"信号量的自旋锁" );
-    sem->name = name;
+    strncpy(sem->name, name, KMT_NAME_SIZE);
     sem->val = value;
 }
 
 
-void kmt_sem_wait(sem_t *sem){
+static void kmt_sem_wait(sem_t *sem){
     while(1){
         kmt_spin_lock(&sem->bin_lock);
         if(sem->val>0){
@@ -39,7 +57,7 @@ void kmt_sem_wait(sem_t *sem){
     
 }
 
-void kmt_sem_signal(sem_t *sem){
+static void kmt_sem_signal(sem_t *sem){
     
     kmt_spin_lock(&sem->bin_lock);      
     sem->val++;       
@@ -47,31 +65,83 @@ void kmt_sem_signal(sem_t *sem){
     
 }
 
-int kmt_create(task_t *task, const char *name, void (*entry)(void *arg), void *arg){
+static void kmt_init(){
+    kmt_spin_init(&task_list.lock, "task list lock");
+    kmt_sem_init(&task_list.having, "task 的信号量" ,0);
+    kmt_spin_init(&print_lock, "print lock");
+}
+
+static int kmt_create(task_t *task, const char *name, void (*entry)(void *arg), void *arg){
+    kmt->spin_init(&task->lock, "task的锁");
+    task->status = RUNNABLE;
+    task->entry = entry;
+    task->arg = arg;
+    task->context = kcontext((Area){.start=&task->fence + 1,.end=task+1},entry, arg);
+    strncpy(task->name, name, KMT_NAME_SIZE);
+    memset(task->fence, '6', KMT_FENCE_SIZE);
+    return task_list_insert(task);
+
+}
+
+static void kmt_teardown(task_t *task){
+    if(task->status==RUNNABLE || task->status==CAN_BE_CLEAR) task_list_delete(task);
+    else{ // 正在RUNNING
+        kmt->spin_lock(&task->lock);
+        task->status=DEAD;// 当这个线程被调度或这个线程被时钟中断后，yield_handler会改变他的状态CAN_BE_CLEAR，并且调用tear_down
+        kmt->spin_unlock(&task->lock);
+    }
+    
+}
+
+// 插入到task链表
+int task_list_insert(task_t *task){
+    kmt_spin_lock(&task_list.lock);
+    panic_on(task==NULL,"task is NULL");
+    if(task_list.head == NULL){
+        task_list.head = task;
+        task->next = task;
+    }else{
+        task->next = task_list.head->next;
+        task_list.head->next = task;
+    }
+
+    kmt_spin_unlock(&task_list.lock);
     return 0;
-}
-void kmt_teardown(task_t *task){
-	;
+    // V(&task_list.having);
 }
 
-void (*init)();
-int  (*create)(task_t *task, const char *name, void (*entry)(void *arg), void *arg);
-void (*teardown)(task_t *task);
-void (*spin_init)(spinlock_t *lk, const char *name);
-void (*spin_lock)(spinlock_t *lk);
-void (*spin_unlock)(spinlock_t *lk);
-void (*sem_init)(sem_t *sem, const char *name, int value);
-void (*sem_wait)(sem_t *sem);
-void (*sem_signal)(sem_t *sem);
+// 从task链表中删除
+void task_list_delete(task_t *task){
+    kmt_spin_lock(&task_list.lock);
+    panic_on(task==NULL,"task is NULL");
+    if(task_list.head == NULL){
+        panic("task list为空");
+    }else{
+        task_t *p = task_list.head;
+        while(p->next != task){
+            p = p->next;
+        }
+        // p--->task--->task->next
+        p->next = task->next;
+        if(task_list.head == task){
+            task_list.head = p->next;
+        }
+    }
+    pmm->free(task);
+    kmt_spin_unlock(&task_list.lock);
+    // P(&task_list.having);
+}
 
-
-
-
-
-
-
-
-
+void task_list_print(){
+    kmt_spin_lock(&task_list.lock);
+    task_t *p = task_list.head;
+    while(p->next != task_list.head){
+        atom_printf("task name is %s\n",p->name);
+        p = p->next;
+    }
+    atom_printf("task name is %s\n",p->name);
+    kmt_spin_unlock(&task_list.lock);
+}
 
 
 MODULE_DEF(kmt) = {

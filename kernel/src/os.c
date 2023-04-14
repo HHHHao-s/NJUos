@@ -6,13 +6,18 @@ static Context * os_trap(Event ev, Context *context);
 static void os_irq(int seq, int event, handler_t handler);
 static Context *inter_handler(Event ev, Context *ctx);
 static Context *yield_handler(Event ev, Context *ctx);
-spinlock_t print_lock;
-#define atom_printf(...)  \
-  kmt->spin_lock(&print_lock);\
-  printf(__VA_ARGS__);\
-  kmt->spin_unlock(&print_lock)
+
+
 
 // extern struct task;
+
+static void test(void *arg){
+
+  while(1){
+    putch((int64_t)(arg) + '0');
+  }
+  
+}
 
 static void os_init() {
   pmm->init();
@@ -20,53 +25,31 @@ static void os_init() {
   os_irq(100, EVENT_YIELD, yield_handler);
   kmt->init();
 
-  
-  kmt->spin_init(&print_lock,"print_lock");
 
 
 
-  // for(int i=0;i<MAX_TASKS;i++){
-  //   taskarr->tasks[i] = NULL;
-  // }
-  // taskarr->len = 0;
+
+
+  for(int i=0;i<8;i++){
+    task_t *task = pmm->alloc(sizeof(task_t));
+    char buf[32];
+    kmt->create(task,itoa(buf, i) , test, (void *)(uint64_t)i);
+  }
+
+  yield();
+  while(1);
   
-  // for(int64_t i=0;i<9;i++){ // 创建10个task
-  //   task_t *task = pmm->alloc(sizeof(task_t));
-  //   task->entry = os_run;
-  //   task->status = RUNNABLE;
-  //   Area stack    = (Area) { &task->stack, task + 1 };
-  //   task->context = kcontext(stack, task->entry, (void *)i);
-  //   task->next    = NULL;
-  //   taskarr->tasks[taskarr->len++] = task;
-  // }
-  // for(int i=0;i<9;i++){
-  //   task_t *task =  taskarr->tasks[i];
-    
-  //   task->next =  taskarr->tasks[(i+1)% taskarr->len];
-  // }
-  // yield();
-  
-  // while (1);
 }
 
 static void os_run() {
-  int cpu = cpu_current();
-  printf("%d",0);
-  atom_printf("os_run() from %d CPU", cpu);
+  
+  atom_printf("os_run() from %d CPU", cpu_current());
   iset(true);// 开中断
   while (1);
   
 
 }
 
-// static void test(void *num) {
-
-//   while (1){
-//     putch((int64_t)num);
-//     for (int volatile i = 0; i < 100000; i++) ; // sleep
-//   }
-
-// }
 
 // 时钟中断处理程序
 static Context *inter_handler(Event ev, Context *ctx){
@@ -80,19 +63,36 @@ static Context *inter_handler(Event ev, Context *ctx){
 static Context *yield_handler(Event ev, Context *ctx){
   //save
   putch('y');
-  if(current_task == NULL){
-    // P 一个task来做
+  
+  if(current_task != NULL){ 
+    kmt->spin_lock(&current_task->lock);
+    if(current_task->status==DEAD) {
+      current_task->status=CAN_BE_CLEAR;
+      kmt->spin_unlock(&current_task->lock);
+      kmt->teardown(current_task);
+      current_task = task_list.head;
+    }else{
+      current_task->context = ctx;
+      current_task->status = RUNNABLE;
+      kmt->spin_unlock(&current_task->lock);
+    }        
   }
   else {
-    current_task->context = ctx;
-    current_task->status = RUNNABLE;
+    current_task = task_list.head;
   }
   //schedule
-  do{
-    current_task=current_task->next;
-  }while (current_task->status!=RUNNABLE);
-  current_task->status=RUNNING;
-  return current_task->context;
+
+  if(current_task==NULL){// 到这里还是NULL的话，没有task被创建，直接返回ctx
+    return ctx;
+  }else{ 
+    kmt->spin_lock(&task_list.lock); // 锁整个链表
+    do{
+      current_task=current_task->next;
+    }while (current_task->status!=RUNNABLE);
+    current_task->status=RUNNING;
+    kmt->spin_unlock(&task_list.lock);
+    return current_task->context;
+  } 
   
 }
 
@@ -102,6 +102,8 @@ static Context *yield_handler(Event ev, Context *ctx){
 static Context * os_trap(Event ev, Context *context){// 在此处，状态已经被保存在context
   putch('t');
   Context *next = NULL;
+  bool saved_i = ienabled();
+  iset(false); // 关中断
   for (handler_node *h=handler_head;h;h=h->next) {
     if (h->event == ev.event) {
       Context *r = h->handler(ev, context); // 用os_irq注册的handler
@@ -112,6 +114,7 @@ static Context * os_trap(Event ev, Context *context){// 在此处，状态已经
   putch('d');
   panic_on(!next, "returning NULL context");
   // panic_on(sane_context(next), "returning to invalid context");// 检查next（不检查了）
+  iset(saved_i);
   return next;
 }
 

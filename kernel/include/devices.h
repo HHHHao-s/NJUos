@@ -1,3 +1,4 @@
+
 typedef struct devops {
   int (*init)(device_t *dev);
   int (*read) (device_t *dev, int offset, void *buf, int count);

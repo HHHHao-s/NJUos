@@ -1,32 +1,53 @@
 #include <common.h>
-
-
-
-struct task {
-  int id;
-  enum {
-    RUNNING = 1,
-    RUNNABLE,
-    DEAD,
-  }status;
-
-  void *entry;
-  struct task *next;
-  Context *context;
-  uint8_t stack[8192];
-  // uint8_t bird[32]; // 用来防止overflow
-};
-
-
-
+#define KMT_STACK_SIZE 8192
+#define KMT_FENCE_SIZE 32
+#define KMT_NAME_SIZE 32
 struct spinlock {
   
   int lock;// 锁
-  const char *name;
+  char name[KMT_NAME_SIZE];
 };
 
 struct semaphore {
   struct spinlock bin_lock; // 自旋锁
   int val;// 量
-  const char *name; 
+  char name[KMT_NAME_SIZE];
 };
+
+
+struct task {
+  // int id;
+  union
+  {  
+    struct{
+      enum {
+      RUNNING = 1,
+      RUNNABLE,
+      DEAD,
+      CAN_BE_CLEAR
+      }status;
+      struct spinlock lock;
+      char name[KMT_NAME_SIZE];
+      void *entry;
+      void *arg;
+      struct task *next;
+      Context *context;
+      uint8_t fence[KMT_FENCE_SIZE]; // 用来防止overflow 
+    };
+    
+    uint8_t stack[KMT_STACK_SIZE]; // 栈指针
+  };
+};// 整个结构体就是2个page
+
+
+struct
+{
+  task_t *head;
+  spinlock_t lock;
+  sem_t having;
+}task_list;
+
+
+
+spinlock_t print_lock;
+
