@@ -8,17 +8,27 @@ static Context *inter_handler(Event ev, Context *ctx);
 static Context *yield_handler(Event ev, Context *ctx);
 
 
-
-// extern struct task;
-
-static void test(void *arg){
-
-  while(1){
-    putch((int64_t)(arg) + '0');
-    for(int i=0;i<100000;i++);
-  }
+struct{
+  sem_t last,having;
   
+}pool;
+
+
+
+
+void produce(){
+  P(&pool.last);
+  putch('(');
+  V(&pool.having);
 }
+
+void consume(){
+  P(&pool.having);
+  putch(')');
+  V(&pool.last);
+}
+
+
 
 static void os_init() {
   pmm->init();
@@ -26,15 +36,22 @@ static void os_init() {
   os_irq(100, EVENT_YIELD, yield_handler);
   kmt->init();
 
+  kmt->sem_init(&pool.having,"pool having", 0);
+  kmt->sem_init(&pool.last,"pool having", 4);
 
+  int con=4,pro=4;
 
+  for(int i=0;i<con;i++){
 
-
-
-  for(int i=0;i<8;i++){
     task_t *task = pmm->alloc(sizeof(task_t));
     char buf[32];
-    kmt->create(task,itoa(buf, i) , test, (void *)(uint64_t)i);
+    kmt->create(task,itoa(buf, i) , consume, (void *)(uint64_t)i);
+  }
+  for(int i=0;i<pro;i++){
+
+    task_t *task = pmm->alloc(sizeof(task_t));
+    char buf[32];
+    kmt->create(task,itoa(buf, i) , produce, (void *)(uint64_t)i);
   }
 
   // while(1);
