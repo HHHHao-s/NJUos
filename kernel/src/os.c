@@ -42,10 +42,12 @@ static void os_init() {
   os_irq(100, EVENT_YIELD, yield_handler);
   kmt->init();
 
-  kmt->sem_init(&pool.having,"pool having", 0);
-  kmt->sem_init(&pool.last,"pool last", 4);
 
-  int con=4,pro=4;
+  int amount = 8;// pool的长度
+  kmt->sem_init(&pool.having,"pool having", 0);
+  kmt->sem_init(&pool.last,"pool last", amount);
+
+  int con=8,pro=16;
 
   for(int i=0;i<con;i++){
 
