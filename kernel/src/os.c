@@ -123,6 +123,7 @@ static Context *error_handler(Event ev, Context *ctx){
 // 时钟中断处理程序
 static Context *inter_handler(Event ev, Context *ctx){
   // putch('i');
+  atom_printf("inter_handler\n");
   yield(); // 将执行到这里的状态保存起来，待调用
   return ctx;
 
@@ -132,7 +133,7 @@ static Context *inter_handler(Event ev, Context *ctx){
 static Context *yield_handler(Event ev, Context *ctx){
   //save
   // putch('y');
-  
+  atom_printf("yield_handler\n");
   if(current_task != NULL){ 
     kmt->spin_lock(&current_task->lock);
     if(current_task->status==DEAD) {
