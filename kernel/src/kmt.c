@@ -52,8 +52,10 @@ static void kmt_sem_wait(sem_t *sem){
             kmt_spin_unlock(&sem->bin_lock);
             break;
         }
+        
         kmt_spin_unlock(&sem->bin_lock);       
     }
+    atom_printf("%s require\n", sem->name);
     
 }
 
@@ -62,7 +64,7 @@ static void kmt_sem_signal(sem_t *sem){
     kmt_spin_lock(&sem->bin_lock);      
     sem->val++;       
     kmt_spin_unlock(&sem->bin_lock);       
-    
+    atom_printf("%s release\n", sem->name);
 }
 
 static void kmt_init(){
