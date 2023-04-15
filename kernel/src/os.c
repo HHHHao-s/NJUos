@@ -64,7 +64,7 @@ static void os_init() {
   pmm->init();
 
   os_irq(0, EVENT_ERROR, error_handler);
-  os_irq(100, EVENT_IRQ_IODEV, iodev_handler);
+  os_irq(50, EVENT_IRQ_IODEV, iodev_handler);
   os_irq(100, EVENT_PAGEFAULT, page_handler);
   os_irq(100, EVENT_SYSCALL, syscall_handler);
   os_irq(100, EVENT_IRQ_TIMER, inter_handler);
