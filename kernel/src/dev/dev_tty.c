@@ -287,7 +287,7 @@ void dev_tty_task(void *arg) {
       device_t *next = ttydev;
       if (ev.data == '1') {next = dev->lookup("tty1"); printf("alt-1 press\n");}
       if (ev.data == '2') {next = dev->lookup("tty2"); printf("alt-2 press\n");}
-      printf("%s",ttydev->name);
+      printf("%s %s",ttydev->name, next->name);
       if (next != ttydev) {
         printf("(tty) Switch to %s.\n", next->name);
         ttydev = next;

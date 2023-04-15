@@ -60,12 +60,10 @@ void pool_init(int size, int con, int pro){
 
 
 
-device_t *ttys[2];
-int tty_count = 0;
 
 static void tty_reader(void *arg) {
   device_t *tty = dev->lookup(arg);
-  ttys[tty_count++] = tty;
+
   char cmd[128], resp[128], ps[16];
   snprintf(ps, 16, "(%s) $ ", arg);
   while (1) {
