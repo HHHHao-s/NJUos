@@ -4,8 +4,8 @@
 int main() {
   ioe_init();
   char buf[5];
-  sprintf(buf, "%d", 1234);
-  // snprintf(buf, 5, "%d", 123456);
+
+  snprintf(buf, 5, "%d", 123456);
   printf(buf);
   cte_init(os->trap);
   dev->init();
