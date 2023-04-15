@@ -97,10 +97,7 @@ static void os_init() {
   kmt->init();
 
   pool_init(4,1,1);
-
-
-  
-  
+ 
 
   dev->init();
   // kmt->create(task_alloc(), "tty_reader", tty_reader, "tty1");
