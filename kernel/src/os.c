@@ -61,7 +61,7 @@ int tty_count = 0;
 
 static void test(void *arg){
   while(1){
-    atom_printf("%d\n", (int64_t)arg);
+    atom_printf(" %d\n", (int64_t)arg);
   }
   
 }
