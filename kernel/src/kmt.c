@@ -29,9 +29,15 @@ static void kmt_spin_init(spinlock_t *lk, const char *name){
 }
 
 static void kmt_spin_lock(spinlock_t *lk){
+    while(!atomic_xchg(&print_lock.lock, 0));
     printf("%s spin acquire\n", lk->name);
+    atomic_xchg(&print_lock.lock, 1);
+
     while(!atomic_xchg(&lk->lock,0));
+
+    while(!atomic_xchg(&print_lock.lock, 0));
     printf("%s spin got\n", lk->name);
+    atomic_xchg(&print_lock.lock, 1);
 }
 
 static void kmt_spin_unlock(spinlock_t *lk){
