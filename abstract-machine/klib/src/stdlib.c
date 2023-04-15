@@ -20,22 +20,46 @@ int abs(int x) {
 }
 
 
-int itoa(char *a, int i){// return strlen
+char* itoa(char *a, int i){// return strlen
+  char *ret= a;
   char buf[1024];
   char *p = buf;
   int count = 0;
   int n=0;
-  while(i>0){
+  if(i==0){
+    *a++='0';
+  }else if(i>0){
+    while(i>0){
     n=i%10;
     *p++ = n+'0';
     i/=10;
     count++;
+    }
+    for(;p-->buf;){
+      *a++ = *p;
+    }
+  }else{
+    i=-i;
+    if(i<0){ // INT_MIN
+      for(p="-214748364";*p;){
+        *a++ = *p++;
+      }
+    }else{
+      while(i>0){
+        n=i%10;
+        *p++ = n+'0';
+        i/=10;
+        count++;
+      }
+      *p++ = '-';
+      for(;p-->buf;){
+        *a++ = *p;
+      }
+    }
   }
-  for(;p-->buf;){
-    *a++ = *p;
-  }
+  
   *a = '\0';
-  return count;
+  return ret;
 }
 
 

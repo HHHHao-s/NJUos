@@ -10,3 +10,7 @@ endif
 include $(AM_HOME)/Makefile
 include ../Makefile.lab
 image: git
+gdb:image
+	qemu-system-x86_64 -s -S ./build/kernel-x86_64-qemu
+test:test.c
+	
