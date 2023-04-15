@@ -29,14 +29,15 @@ static void kmt_spin_init(spinlock_t *lk, const char *name){
 }
 
 static void kmt_spin_lock(spinlock_t *lk){
-    atom_printf("%s spin acquire", lk->name);
+    printf("%s spin acquire\n", lk->name);
     while(!atomic_xchg(&lk->lock,0));
-    atom_printf("%s spin got", lk->name);
+    printf("%s spin got\n", lk->name);
 }
 
 static void kmt_spin_unlock(spinlock_t *lk){
     panic_on(lk->lock!=0,"释放的自旋锁不是0");
     atomic_xchg(&lk->lock, 1);
+    printf("%s spin release\n", lk->name);
 }
 
 static void kmt_sem_init(sem_t *sem, const char *name, int value){
