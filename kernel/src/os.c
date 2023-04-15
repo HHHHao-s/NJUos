@@ -59,6 +59,11 @@ static void tty_reader(void *arg) {
 static void os_init() {
   pmm->init();
   
+  char buf[5];
+  snprintf(buf, 5, "%d", 123456);
+  printf(buf);
+
+
   os_irq(0, EVENT_ERROR, error_handler);
   os_irq(100, EVENT_IRQ_IODEV, iodev_handler);
   os_irq(100, EVENT_PAGEFAULT, page_handler);
