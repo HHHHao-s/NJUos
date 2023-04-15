@@ -33,7 +33,7 @@ static void kmt_spin_lock(spinlock_t *lk){
     atom_printf("%s spin acquire\n", lk->name);
     
 
-    while(!atomic_xchg(&lk->lock,0));
+    while(!atomic_xchg(&lk->lock,0)){yield();};
 
     
     atom_printf("%s spin got\n", lk->name);
