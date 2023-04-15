@@ -29,7 +29,9 @@ static void kmt_spin_init(spinlock_t *lk, const char *name){
 }
 
 static void kmt_spin_lock(spinlock_t *lk){
+    atom_printf("%s spin acquire", lk->name);
     while(!atomic_xchg(&lk->lock,0));
+    atom_printf("%s spin got", lk->name);
 }
 
 static void kmt_spin_unlock(spinlock_t *lk){
