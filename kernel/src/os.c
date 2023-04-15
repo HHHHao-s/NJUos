@@ -124,9 +124,9 @@ static Context *error_handler(Event ev, Context *ctx){
 // 时钟中断处理程序
 static Context *inter_handler(Event ev, Context *ctx){
   // putch('i');
-  atom_printf("inter_handler\n");
+  
   yield(); // 将执行到这里的状态保存起来，待调用
-  atom_printf("inter_done\n");
+  
   return ctx;
 
 
