@@ -96,12 +96,12 @@ static void os_init() {
   os_irq(100, EVENT_YIELD, yield_handler);
   kmt->init();
 
-  pool_init(4,1,1);
+  // pool_init(4,1,1);
  
 
   dev->init();
   kmt->create(task_alloc(), "tty_reader", tty_reader, "tty1");
-  // kmt->create(task_alloc(), "tty_reader", tty_reader, "tty2");
+  kmt->create(task_alloc(), "tty_reader", tty_reader, "tty2");
 
   // while(1);
   
