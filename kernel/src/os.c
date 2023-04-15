@@ -61,7 +61,7 @@ int tty_count = 0;
 
 static void test(void *arg){
   while(1){
-    atom_printf("%d\n", (&current_task-currents));
+    atom_printf("%p", current_task);
   }
   
 }
