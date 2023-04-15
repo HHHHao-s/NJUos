@@ -61,8 +61,8 @@ int tty_count = 0;
 
 static void test(void *arg){
   while(1){
-    atom_printf("%p", current_task);
-    for(int i=0;i<100000;i++);
+    atom_printf("%d", arg);
+    for(int i=0;i<1000000;i++);
   }
   
 }
