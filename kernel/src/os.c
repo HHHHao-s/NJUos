@@ -107,6 +107,7 @@ static Context *syscall_handler(Event ev, Context *ctx){
 
 //EVENT_IRQ_IODEV
 static Context *iodev_handler(Event ev, Context *ctx){
+  atom_printf("iodev_handler\n");
   // kmt->sem_signal(&((tty_t *)ttys[0]->ptr)->cooked);
   // kmt->sem_signal(&((tty_t *)ttys[1]->ptr)->cooked);
   return ctx;
