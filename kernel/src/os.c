@@ -178,8 +178,8 @@ static Context *yield_handler(Event ev, Context *ctx){
 static Context * os_trap(Event ev, Context *context){// 在此处，状态已经被保存在context
   // putch('t');
   Context *next = NULL;
-  bool saved_i = ienabled();
-  iset(false); // 关中断
+  // bool saved_i = ienabled();
+  // iset(false); // 关中断
   for (handler_node *h=handler_head;h;h=h->next) {
     if (h->event == ev.event) {
       Context *r = h->handler(ev, context); // 用os_irq注册的handler
@@ -190,8 +190,8 @@ static Context * os_trap(Event ev, Context *context){// 在此处，状态已经
   
   panic_on(!next, "returning NULL context");
   // panic_on(sane_context(next), "returning to invalid context");// 检查next（不检查了）
-  // putch('d');
-  iset(saved_i);
+  
+  // iset(saved_i);
   return next;
 }
 
