@@ -45,6 +45,7 @@ static void kmt_sem_init(sem_t *sem, const char *name, int value){
 
 
 static void kmt_sem_wait(sem_t *sem){
+    atom_printf("%s require\n", sem->name);
     while(1){
         kmt_spin_lock(&sem->bin_lock);
         if(sem->val>0){
@@ -55,7 +56,7 @@ static void kmt_sem_wait(sem_t *sem){
         
         kmt_spin_unlock(&sem->bin_lock);       
     }
-    atom_printf("%s require\n", sem->name);
+    atom_printf("%s got\n", sem->name);
     
 }
 
