@@ -45,20 +45,23 @@ static task_t* task_alloc(){
 device_t *ttys[2];
 int tty_count = 0;
 
-static void tty_reader(void *arg) {
-  device_t *tty = dev->lookup(arg);
-  ttys[tty_count++] = tty;
-  char cmd[128], resp[128], ps[16];
-  snprintf(ps, 16, "(%s) $ ", arg);
-  while (1) {
-    tty->ops->write(tty, 0, ps, strlen(ps));
-    int nread = tty->ops->read(tty, 0, cmd, sizeof(cmd) - 1);
-    cmd[nread] = '\0';
-    sprintf(resp, "tty reader task: got %d character(s).\n", strlen(cmd));
-    tty->ops->write(tty, 0, resp, strlen(resp));
-  }
-}
+// static void tty_reader(void *arg) {
+//   device_t *tty = dev->lookup(arg);
+//   ttys[tty_count++] = tty;
+//   char cmd[128], resp[128], ps[16];
+//   snprintf(ps, 16, "(%s) $ ", arg);
+//   while (1) {
+//     tty->ops->write(tty, 0, ps, strlen(ps));
+//     int nread = tty->ops->read(tty, 0, cmd, sizeof(cmd) - 1);
+//     cmd[nread] = '\0';
+//     sprintf(resp, "tty reader task: got %d character(s).\n", strlen(cmd));
+//     tty->ops->write(tty, 0, resp, strlen(resp));
+//   }
+// }
 
+static void test(void *arg){
+  atom_printf("%p\n", arg);
+}
 
 static void os_init() {
   pmm->init();
@@ -71,8 +74,13 @@ static void os_init() {
   os_irq(100, EVENT_YIELD, yield_handler);
   kmt->init();
 
-  dev->init();
-  kmt->create(task_alloc(), "tty_reader", tty_reader, "tty1");
+  for(int i=0;i<4;i++){
+    kmt->create(task_alloc(),"test", test, (void *)(int64_t)i);
+  }
+  
+
+  // dev->init();
+  // kmt->create(task_alloc(), "tty_reader", tty_reader, "tty1");
   // kmt->create(task_alloc(), "tty_reader", tty_reader, "tty2");
 
   // while(1);
@@ -111,7 +119,7 @@ static Context *iodev_handler(Event ev, Context *ctx){
   atom_printf("iodev_handler\n");
   // kmt->sem_signal(&((tty_t *)ttys[0]->ptr)->cooked);
   // kmt->sem_signal(&((tty_t *)ttys[1]->ptr)->cooked);
-  return NULL;
+  return ctx;
 }
 
 
@@ -178,8 +186,8 @@ static Context *yield_handler(Event ev, Context *ctx){
 static Context * os_trap(Event ev, Context *context){// 在此处，状态已经被保存在context
   // putch('t');
   Context *next = NULL;
-  // bool saved_i = ienabled();
-  // iset(false); // 关中断
+  bool saved_i = ienabled();
+  iset(false); // 关中断
   for (handler_node *h=handler_head;h;h=h->next) {
     if (h->event == ev.event) {
       Context *r = h->handler(ev, context); // 用os_irq注册的handler
@@ -191,7 +199,7 @@ static Context * os_trap(Event ev, Context *context){// 在此处，状态已经
   panic_on(!next, "returning NULL context");
   // panic_on(sane_context(next), "returning to invalid context");// 检查next（不检查了）
   
-  // iset(saved_i);
+  iset(saved_i);
   return next;
 }
 
