@@ -150,7 +150,7 @@ static Context *yield_handler(Event ev, Context *ctx){
       
       kmt->spin_unlock(&current_task->lock);
     }  
-    atom_printf(" from%s\n", current_task->name);      
+    atom_printf("from%s\n", current_task->name);      
   }
   else {
     current_task = task_list.head;
@@ -166,7 +166,7 @@ static Context *yield_handler(Event ev, Context *ctx){
     }while (current_task->status!=RUNNABLE);
     current_task->status=RUNNING;
     kmt->spin_unlock(&task_list.lock);
-    atom_printf(" turn to%s\n", current_task->name);
+    atom_printf("turn to%s\n", current_task->name);
     return current_task->context;
   } 
   
