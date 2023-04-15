@@ -43,7 +43,7 @@ static void kmt_spin_lock(spinlock_t *lk){
 static void kmt_spin_unlock(spinlock_t *lk){
     panic_on(lk->lock!=0,"释放的自旋锁不是0");
     atomic_xchg(&lk->lock, 1);
-    printf("%s spin release\n", lk->name);
+    // printf("%s spin release\n", lk->name);
 }
 
 static void kmt_sem_init(sem_t *sem, const char *name, int value){
