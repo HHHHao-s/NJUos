@@ -60,7 +60,10 @@ int tty_count = 0;
 // }
 
 static void test(void *arg){
-  atom_printf("%p\n", arg);
+  while(1){
+    atom_printf("%p\n", arg);
+  }
+  
 }
 
 static void os_init() {
