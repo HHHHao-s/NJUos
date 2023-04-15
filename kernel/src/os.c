@@ -70,6 +70,7 @@ static void os_init() {
   os_irq(100, EVENT_IRQ_TIMER, inter_handler);
   os_irq(100, EVENT_YIELD, yield_handler);
   kmt->init();
+  
   dev->init();
   kmt->create(task_alloc(), "tty_reader", tty_reader, "tty1");
   kmt->create(task_alloc(), "tty_reader", tty_reader, "tty2");
