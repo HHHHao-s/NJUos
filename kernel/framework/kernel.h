@@ -22,9 +22,9 @@ typedef struct semaphore sem_t;
 typedef struct task task_t;
 
 #define atom_printf(...)  \
-  kmt->spin_lock(&print_lock);\
+  while(!atomic_xchg(&print_lock.lock,0));\
   printf(__VA_ARGS__);\
-  kmt->spin_unlock(&print_lock)
+  atomic_xchg(&print_lock.lock,1)
 
 task_t *currents[MAX_CPU];
 
