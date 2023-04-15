@@ -56,9 +56,12 @@ static void kmt_sem_wait(sem_t *sem){
             sem->val--;
             kmt_spin_unlock(&sem->bin_lock);
             break;
+        }else{  
+            kmt_spin_unlock(&sem->bin_lock);  
+            yield();
         }
         
-        kmt_spin_unlock(&sem->bin_lock);       
+            
     }
     // atom_printf("%s got\n", sem->name);
     
