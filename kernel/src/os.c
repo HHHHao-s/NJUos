@@ -14,11 +14,15 @@ static Context *error_handler(Event ev, Context *ctx);
 
 struct{
   sem_t last,having;
-  
+  void (*produce)(void *);
+  void (*consume)(void *);
+  void (*init)(int);
 }pool;
 
 
-
+static task_t* task_alloc(){
+  return pmm->alloc(sizeof(task_t));
+}
 
 void produce(void *arg){
   while(1){
@@ -38,9 +42,23 @@ void consume(void *arg){
   
 }
 
-static task_t* task_alloc(){
-  return pmm->alloc(sizeof(task_t));
+
+void pool_init(int size, int con, int pro){
+  kmt->sem_init(&pool.last, "pool last", size);
+  kmt->sem_init(&pool.having, "pool having", 0);
+  for(int i=0;i<pro;i++){
+    task_t *task = task_alloc();
+    atom_printf("%p", task);
+    kmt->create(task,"producer", produce, NULL);
+  }
+  for(int i=0;i<con;i++){
+    task_t *task = task_alloc();
+    atom_printf("%p", task);
+    kmt->create(task,"consume", consume, NULL);
+  }
 }
+
+
 
 device_t *ttys[2];
 int tty_count = 0;
@@ -59,13 +77,13 @@ int tty_count = 0;
 //   }
 // }
 
-static void test(void *arg){
-  while(1){
-    atom_printf("%d", arg);
-    for(int i=0;i<1000000;i++);
-  }
+// static void test(void *arg){
+//   while(1){
+//     atom_printf("%d", arg);
+//     for(int i=0;i<1000000;i++);
+//   }
   
-}
+// }
 
 static void os_init() {
   pmm->init();
@@ -78,11 +96,10 @@ static void os_init() {
   os_irq(100, EVENT_YIELD, yield_handler);
   kmt->init();
 
-  for(int i=0;i<4;i++){
-    task_t *task = task_alloc();
-    atom_printf("%p", task);
-    kmt->create(task,"test", test, (void *)(int64_t)i);
-  }
+  pool_init(4,8,4);
+
+
+  
   
 
   // dev->init();
