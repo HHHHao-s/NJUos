@@ -41,7 +41,9 @@ static void kmt_spin_unlock(spinlock_t *lk){
 }
 
 static void kmt_sem_init(sem_t *sem, const char *name, int value){
-    kmt_spin_init(&sem->bin_lock,"信号量的自旋锁" );
+    char buf[32];
+    sprintf(buf,"%s bin_lock", name);
+    kmt_spin_init(&sem->bin_lock,buf);
     strncpy(sem->name, name, KMT_NAME_SIZE);
     sem->val = value;
 }
