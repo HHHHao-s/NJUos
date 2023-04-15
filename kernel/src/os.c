@@ -146,6 +146,7 @@ static Context *yield_handler(Event ev, Context *ctx){
     }else{
       current_task->context = ctx;
       current_task->status = RUNNABLE;
+      atom_printf("from%s\n", current_task->name);
       kmt->spin_unlock(&current_task->lock);
     }        
   }
