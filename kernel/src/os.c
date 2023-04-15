@@ -1,12 +1,16 @@
 // #include <common.h>
 #include <os.h>
+#include <devices.h>
 
 static void os_run();
 static Context * os_trap(Event ev, Context *context);
 static void os_irq(int seq, int event, handler_t handler);
 static Context *inter_handler(Event ev, Context *ctx);
 static Context *yield_handler(Event ev, Context *ctx);
-
+static Context *page_handler(Event ev, Context *ctx);
+static Context *iodev_handler(Event ev, Context *ctx);
+static Context *syscall_handler(Event ev, Context *ctx);
+static Context *error_handler(Event ev, Context *ctx);
 
 struct{
   sem_t last,having;
@@ -34,33 +38,37 @@ void consume(void *arg){
   
 }
 
+static task_t* task_alloc(){
+  return pmm->alloc(sizeof(task_t));
+}
+
+static void tty_reader(void *arg) {
+  device_t *tty = dev->lookup(arg);
+  char cmd[128], resp[128], ps[16];
+  snprintf(ps, 16, "(%s) $ ", arg);
+  while (1) {
+    tty->ops->write(tty, 0, ps, strlen(ps));
+    int nread = tty->ops->read(tty, 0, cmd, sizeof(cmd) - 1);
+    cmd[nread] = '\0';
+    sprintf(resp, "tty reader task: got %d character(s).\n", strlen(cmd));
+    tty->ops->write(tty, 0, resp, strlen(resp));
+  }
+}
 
 
 static void os_init() {
   pmm->init();
+  
+  os_irq(0, EVENT_ERROR, error_handler);
+  os_irq(100, EVENT_IRQ_IODEV, iodev_handler);
+  os_irq(100, EVENT_PAGEFAULT, page_handler);
+  os_irq(100, EVENT_SYSCALL, syscall_handler);
   os_irq(100, EVENT_IRQ_TIMER, inter_handler);
   os_irq(100, EVENT_YIELD, yield_handler);
   kmt->init();
 
-
-  int amount = 8;// pool的长度
-  kmt->sem_init(&pool.having,"pool having", 0);
-  kmt->sem_init(&pool.last,"pool last", amount);
-
-  int con=8,pro=4;
-
-  for(int i=0;i<con;i++){
-
-    task_t *task = pmm->alloc(sizeof(task_t));
-    char buf[32];
-    kmt->create(task,itoa(buf, i) , consume, NULL);
-  }
-  for(int i=0;i<pro;i++){
-
-    task_t *task = pmm->alloc(sizeof(task_t));
-    char buf[32];
-    kmt->create(task,itoa(buf, i) , produce, NULL);
-  }
+  kmt->create(task_alloc(), "tty_reader", tty_reader, "tty1");
+  kmt->create(task_alloc(), "tty_reader", tty_reader, "tty2");
 
   // while(1);
   
@@ -73,6 +81,35 @@ static void os_run() {
   while (1);
   
 
+}
+
+
+
+// EVENT_PAGEFAULT
+static Context *page_handler(Event ev, Context *ctx){
+  panic("pagefault");
+
+}
+
+
+
+//EVENT_SYSCALL
+static Context *syscall_handler(Event ev, Context *ctx){
+  // TODO
+  panic("syscall");
+
+}
+
+
+//EVENT_IRQ_IODEV
+static Context *iodev_handler(Event ev, Context *ctx){
+  return ctx;
+}
+
+
+// EVENT_ERROR
+static Context *error_handler(Event ev, Context *ctx){
+  panic("error_handler");
 }
 
 
