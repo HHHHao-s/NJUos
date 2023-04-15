@@ -30,13 +30,13 @@ static void kmt_spin_init(spinlock_t *lk, const char *name){
 
 static void kmt_spin_lock(spinlock_t *lk){
     
-    atom_printf("%s spin acquire\n", lk->name);
+    // atom_printf("%s spin acquire\n", lk->name);
     
 
     while(!atomic_xchg(&lk->lock,0)){yield();};
 
     
-    atom_printf("%s spin got\n", lk->name);
+    // atom_printf("%s spin got\n", lk->name);
     
 }
 
@@ -56,7 +56,7 @@ static void kmt_sem_init(sem_t *sem, const char *name, int value){
 
 
 static void kmt_sem_wait(sem_t *sem){
-    atom_printf("%s require\n", sem->name);
+    // atom_printf("%s require\n", sem->name);
     while(1){
         kmt_spin_lock(&sem->bin_lock);
         if(sem->val>0){
@@ -67,7 +67,7 @@ static void kmt_sem_wait(sem_t *sem){
         
         kmt_spin_unlock(&sem->bin_lock);       
     }
-    atom_printf("%s got\n", sem->name);
+    // atom_printf("%s got\n", sem->name);
     
 }
 
@@ -76,7 +76,7 @@ static void kmt_sem_signal(sem_t *sem){
     kmt_spin_lock(&sem->bin_lock);      
     sem->val++;       
     kmt_spin_unlock(&sem->bin_lock);       
-    atom_printf("%s release\n", sem->name);
+    // atom_printf("%s release\n", sem->name);
 }
 
 static void kmt_init(){
