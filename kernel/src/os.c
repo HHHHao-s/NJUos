@@ -42,8 +42,12 @@ static task_t* task_alloc(){
   return pmm->alloc(sizeof(task_t));
 }
 
+device_t *ttys[2];
+int tty_count = 0;
+
 static void tty_reader(void *arg) {
   device_t *tty = dev->lookup(arg);
+  ttys[tty_count++] = tty;
   char cmd[128], resp[128], ps[16];
   snprintf(ps, 16, "(%s) $ ", arg);
   while (1) {
@@ -103,6 +107,8 @@ static Context *syscall_handler(Event ev, Context *ctx){
 
 //EVENT_IRQ_IODEV
 static Context *iodev_handler(Event ev, Context *ctx){
+  kmt->sem_signal(&((tty_t *)ttys[0]->ptr)->cooked);
+  kmt->sem_signal(&((tty_t *)ttys[1]->ptr)->cooked);
   return ctx;
 }
 
