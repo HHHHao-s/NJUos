@@ -96,7 +96,7 @@ static void os_init() {
   os_irq(100, EVENT_YIELD, yield_handler);
   kmt->init();
 
-  pool_init(4,2,1);
+  pool_init(4,1,1);
 
 
   
