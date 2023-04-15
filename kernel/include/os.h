@@ -1,5 +1,5 @@
 #include <common.h>
-#define KMT_STACK_SIZE 8192
+#define KMT_STACK_SIZE 8192*4
 #define KMT_FENCE_SIZE 32
 #define KMT_NAME_SIZE 32
 struct spinlock {
