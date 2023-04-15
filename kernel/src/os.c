@@ -135,7 +135,7 @@ static Context *yield_handler(Event ev, Context *ctx){
   //save
   // putch('y');
   
-  atom_printf("yield_handler\n");
+  // atom_printf("yield_handler\n");
   if(current_task != NULL){ 
     kmt->spin_lock(&current_task->lock);
     if(current_task->status==DEAD) {
@@ -146,7 +146,7 @@ static Context *yield_handler(Event ev, Context *ctx){
     }else{
       current_task->context = ctx;
       current_task->status = RUNNABLE;
-      atom_printf("from%s\n", current_task->name);
+      atom_printf(" from%s\n", current_task->name);
       kmt->spin_unlock(&current_task->lock);
     }        
   }
@@ -164,7 +164,7 @@ static Context *yield_handler(Event ev, Context *ctx){
     }while (current_task->status!=RUNNABLE);
     current_task->status=RUNNING;
     kmt->spin_unlock(&task_list.lock);
-    atom_printf("turn to%s\n", current_task->name);
+    atom_printf(" turn to%s\n", current_task->name);
     return current_task->context;
   } 
   
