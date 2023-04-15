@@ -135,7 +135,7 @@ static Context *yield_handler(Event ev, Context *ctx){
   //save
   // putch('y');
   
-  atom_printf("    yield_handler\n");
+  atom_printf("yield_handler\n");
   if(current_task != NULL){ 
     kmt->spin_lock(&current_task->lock);
     if(current_task->status==DEAD) {
