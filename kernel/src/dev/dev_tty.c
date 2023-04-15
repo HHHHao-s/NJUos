@@ -283,6 +283,7 @@ void dev_tty_task(void *arg) {
     tty_t *tty = ttydev->ptr;
 
     if (ev.alt) {
+      printf("alt press");
       device_t *next = ttydev;
       if (ev.data == '1') next = dev->lookup("tty1");
       if (ev.data == '2') next = dev->lookup("tty2");
