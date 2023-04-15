@@ -81,12 +81,14 @@ static void kmt_sem_signal(sem_t *sem){
 
 static void kmt_init(){
     kmt_spin_init(&task_list.lock, "task list lock");
-    kmt_sem_init(&task_list.having, "task 的信号量" ,0);
+    kmt_sem_init(&task_list.having, "task list sem" ,0);
     kmt_spin_init(&print_lock, "print lock");
 }
 
 static int kmt_create(task_t *task, const char *name, void (*entry)(void *arg), void *arg){
-    kmt->spin_init(&task->lock, "task的锁");
+    char buf[32];
+    strncpy(buf,name,32);
+    kmt->spin_init(&task->lock, strcat(buf, " spin lock") );
     task->status = RUNNABLE;
     task->entry = entry;
     task->arg = arg;
