@@ -90,7 +90,7 @@ static int kmt_create(task_t *task, const char *name, void (*entry)(void *arg), 
     task->arg = arg;
     task->context = kcontext((Area){.start=&task->fence + 1,.end=task+1},entry, arg);
     strncpy(task->name, name, KMT_NAME_SIZE);
-    memset(task->fence, '6', KMT_FENCE_SIZE);
+    memset(task->fence, 'x', KMT_FENCE_SIZE);
     return task_list_insert(task);
 
 }
