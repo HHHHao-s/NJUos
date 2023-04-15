@@ -78,7 +78,9 @@ static void os_init() {
   kmt->init();
 
   for(int i=0;i<4;i++){
-    kmt->create(task_alloc(),"test", test, (void *)(int64_t)i);
+    task_t *task = task_alloc();
+    atom_printf("%p", task);
+    kmt->create(task,"test", test, (void *)(int64_t)i);
   }
   
 
