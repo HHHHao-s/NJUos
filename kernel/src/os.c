@@ -140,7 +140,7 @@ static Context *iodev_handler(Event ev, Context *ctx){
   // kmt->sem_signal(&((tty_t *)ttys[0]->ptr)->cooked);
   // kmt->sem_signal(&((tty_t *)ttys[1]->ptr)->cooked);
   // return ctx;
-  yield();
+  // yield();
   return ctx;
 }
 
