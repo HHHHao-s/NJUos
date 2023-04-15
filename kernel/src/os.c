@@ -102,7 +102,7 @@ static void os_init() {
   
   
 
-  // dev->init();
+  dev->init();
   // kmt->create(task_alloc(), "tty_reader", tty_reader, "tty1");
   // kmt->create(task_alloc(), "tty_reader", tty_reader, "tty2");
 
@@ -139,7 +139,7 @@ static Context *syscall_handler(Event ev, Context *ctx){
 
 //EVENT_IRQ_IODEV
 static Context *iodev_handler(Event ev, Context *ctx){
-  // atom_printf("iodev_handler\n");
+  atom_printf("iodev_handler\n");
   // kmt->sem_signal(&((tty_t *)ttys[0]->ptr)->cooked);
   // kmt->sem_signal(&((tty_t *)ttys[1]->ptr)->cooked);
   return ctx;
