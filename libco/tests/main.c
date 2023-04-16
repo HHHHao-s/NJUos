@@ -17,13 +17,15 @@ static int get_count() {
 static void work_loop(void *arg) {
     const char *s = (const char*)arg;
     for (int i = 0; i < 100; ++i) {
-        printf("%s%d  ", s, get_count());
+        
+        printf("%s%d ", s, get_count());
         add_count();
         co_yield();
     }
 }
 
 static void work(void *arg) {
+    
     work_loop(arg);
 }
 
@@ -68,6 +70,7 @@ static void producer(void *arg) {
             do_produce(queue);
             i += 1;
         }
+        
         co_yield();
     }
 }
@@ -101,8 +104,12 @@ static void test_2() {
     struct co *thd2 = co_start("producer-2", producer, queue);
     struct co *thd3 = co_start("consumer-1", consumer, queue);
     struct co *thd4 = co_start("consumer-2", consumer, queue);
+    
+
 
     co_wait(thd1);
+
+
     co_wait(thd2);
 
     g_running = 0;
@@ -122,6 +129,8 @@ int main() {
 
     printf("Test #1. Expect: (X|Y){0, 1, 2, ..., 199}\n");
     test_1();
+
+    // co_print();
 
     printf("\n\nTest #2. Expect: (libco-){200, 201, 202, ..., 399}\n");
     test_2();

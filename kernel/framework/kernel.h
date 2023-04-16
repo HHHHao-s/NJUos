@@ -1,5 +1,5 @@
 #include <am.h>
-
+// #include <os.h>
 #define MODULE(mod) \
   typedef struct mod_##mod##_t mod_##mod##_t; \
   extern mod_##mod##_t *mod; \
@@ -10,7 +10,38 @@
   mod_##mod##_t *mod = &__##mod##_obj; \
   mod_##mod##_t __##mod##_obj
 
+#define MAX_CPU 8
+#define MAX_TASKS 32
+
+#define current_task currents[cpu_current()]
+#define P(s) kmt->sem_wait(s)
+#define V(s) kmt->sem_signal(s)
+
+typedef struct spinlock spinlock_t;
+typedef struct semaphore sem_t;
+typedef struct task task_t;
+
+#define atom_printf(...)  \
+  while(!atomic_xchg(&print_lock.lock,0));\
+  printf(__VA_ARGS__);\
+  atomic_xchg(&print_lock.lock,1)
+
+task_t *currents[MAX_CPU];
+
+
+
 typedef Context *(*handler_t)(Event, Context *);
+
+typedef struct _handler_node{
+  int seq,event;
+  handler_t handler;
+  struct _handler_node *next;
+}handler_node;// handler的链表，按照seq排序
+
+handler_node * handler_head;
+
+
+
 MODULE(os) {
   void (*init)();
   void (*run)();
@@ -24,9 +55,9 @@ MODULE(pmm) {
   void  (*free)(void *ptr);
 };
 
-typedef struct task task_t;
-typedef struct spinlock spinlock_t;
-typedef struct semaphore sem_t;
+
+
+
 MODULE(kmt) {
   void (*init)();
   int  (*create)(task_t *task, const char *name, void (*entry)(void *arg), void *arg);

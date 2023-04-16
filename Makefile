@@ -27,7 +27,10 @@ $(NAME)-64.so: $(DEPS) # 64bit shared library
 $(NAME)-32.so: $(DEPS) # 32bit shared library
 	gcc -fPIC -shared -m32 $(CFLAGS) $(SRCS) -o $@ $(LDFLAGS)
 
+test: test.c
+	gcc $(CFLAGS) -o a.out $^ && ./a.out
+
 clean:
 	rm -f $(NAME)-64 $(NAME)-32 $(NAME)-64.so $(NAME)-32.so
 
-include ../Makefile.lab
+include ./Makefile.lab

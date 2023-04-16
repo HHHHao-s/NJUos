@@ -166,13 +166,25 @@ static void tty_putc(tty_t *tty, char ch) {
   }
 }
 
+// static char welcome_text[] = 
+//   " 1111112 11111112112      111112 1111112 \n"
+//   "11533311211533336114     1153311211533112\n"
+//   "114   11411111112114     1111111411111156\n"
+//   "114   11473333114114     1153311411533112\n"
+//   "7111111561111111411111112114  11411111156\n"
+//   " 7333336 7333333673333336736  7367333336 \n";
+
 static char welcome_text[] = 
-  " 1111112 11111112112      111112 1111112 \n"
-  "11533311211533336114     1153311211533112\n"
-  "114   11411111112114     1111111411111156\n"
-  "114   11473333114114     1153311411533112\n"
-  "7111111561111111411111112114  11411111156\n"
-  " 7333336 7333333673333336736  7367333336 \n";
+  "  33333333333333 53333333332 4         4\n"
+  "            1    4         4 4         4\n"
+  "          1      4         4 4         4\n"
+  "        1        53333333336 43333333334\n"
+  "      1          4   1       4         4\n"
+  "    1            4     1     4         4\n"
+  "  33333333333333 4        1  4         4\n";
+  
+
+
 
 // 1: █ (219)
 // 2: ╗ (187)
@@ -180,7 +192,7 @@ static char welcome_text[] =
 // 4: ║ (186)
 // 5: ╔ (201)
 // 6: ╝ (188)
-// 8: ╚ (200)
+// 7: ╚ (200)
 
 static void welcome(device_t *dev) {
   for (char *p = welcome_text; *p; p++) {
@@ -283,9 +295,11 @@ void dev_tty_task(void *arg) {
     tty_t *tty = ttydev->ptr;
 
     if (ev.alt) {
+      
       device_t *next = ttydev;
-      if (ev.data == '1') next = dev->lookup("tty1");
-      if (ev.data == '2') next = dev->lookup("tty2");
+      if (ev.data == '1') {next = dev->lookup("tty1"); printf("alt-1 press\n");}
+      if (ev.data == '2') {next = dev->lookup("tty2"); printf("alt-2 press\n");}
+      printf("%s %s",ttydev->name, next->name);
       if (next != ttydev) {
         printf("(tty) Switch to %s.\n", next->name);
         ttydev = next;
