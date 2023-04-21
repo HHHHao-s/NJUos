@@ -1,5 +1,9 @@
-NAME := $(shell basename $(PWD))
-export MODULE := M3
-all: $(NAME)-64 $(NAME)-32
 
-include ../Makefile
+
+
+a.out:sperf.c
+	gcc -g sperf.c
+
+run:a.out
+	./a.out ls
+
