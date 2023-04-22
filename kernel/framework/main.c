@@ -6,7 +6,7 @@ int main() {
   cte_init(os->trap);
   os->init();
   uproc->init();
-  mpe_init(os->run);
+  
   
   return 1;
 }
