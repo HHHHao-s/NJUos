@@ -2,6 +2,11 @@
 #define KMT_STACK_SIZE 8192*4
 #define KMT_FENCE_SIZE 32
 #define KMT_NAME_SIZE 32
+
+
+int task_list_insert(task_t *task);
+void task_list_delete(task_t *task);
+
 struct spinlock {
   
   int lock;// 锁
@@ -32,6 +37,7 @@ struct task {
       void *arg;
       struct task *next;
       Context *context;
+      AddrSpace as;
       uint8_t fence[KMT_FENCE_SIZE]; // 用来防止overflow 
     };
     

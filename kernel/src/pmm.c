@@ -25,7 +25,7 @@ void unlock(){atomic_xchg(&bin_lock, 0);};
 
 
 
-static void *kalloc(size_t size) {
+static void *kalloc(int size) {
   lock();
   void *ret = mm_malloc(size);
   unlock();
