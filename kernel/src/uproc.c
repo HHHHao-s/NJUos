@@ -22,7 +22,7 @@ int ucreate(task_t *task, const char *name, void (*entry)(void *arg), void *arg)
 static void uproc_init()
 {
     vme_init(pmm->alloc, pmm->free);
-    void(*p)() = (void *)_init;
+    void(*p)() = (void*)_init;
     p();
 
 }
