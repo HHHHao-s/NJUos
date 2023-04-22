@@ -126,7 +126,7 @@ static Context *page_handler(Event ev, Context *ctx){
 //EVENT_SYSCALL
 static Context *syscall_handler(Event ev, Context *ctx){
   // TODO
-  atom_printf("%d", ev.event);
+  atom_printf("%d", ctx->rax);
   panic("syscall");
 
 }
