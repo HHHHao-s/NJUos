@@ -97,7 +97,7 @@ static void os_init() {
   // pool_init(4,1,1);
  
 
-  dev->init();
+  // dev->init();
   
 
   // while(1);
