@@ -6,7 +6,7 @@
 
 int task_list_insert(task_t *task);
 void task_list_delete(task_t *task);
-
+task_t* task_alloc();
 struct spinlock {
   
   int lock;// 锁

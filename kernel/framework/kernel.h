@@ -1,4 +1,5 @@
 #include <am.h>
+#include <syscall.h>
 // #include <os.h>
 #define MODULE(mod) \
   typedef struct mod_##mod##_t mod_##mod##_t; \

@@ -5,10 +5,10 @@
 
 
 int ucreate(task_t *task, const char *name, void (*entry)(void *arg), void *arg){
-    panic("ucreate");
+    // panic("ucreate");
     char buf[32];
     strncpy(buf,name,32);
-    kmt->spin_init(&task->lock, strcat(buf, " spin lock") );
+    kmt->spin_init(&task->lock, strcat(buf, "user spin lock") );
     task->status = RUNNABLE;
     task->entry = entry;
     task->arg = arg;
@@ -22,8 +22,7 @@ int ucreate(task_t *task, const char *name, void (*entry)(void *arg), void *arg)
 static void uproc_init()
 {
     vme_init(pmm->alloc, pmm->free);
-    void(*p)() = (void*)_init;
-    p();
+    ucreate(task_alloc(),"user proc", (void (*)(void *))_init, NULL);
 
 }
 

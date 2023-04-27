@@ -2,6 +2,7 @@
 #include <os.h>
 #include <devices.h>
 
+
 static void os_run();
 static Context * os_trap(Event ev, Context *context);
 static void os_irq(int seq, int event, handler_t handler);
@@ -20,7 +21,7 @@ struct{
 }pool;
 
 
-static task_t* task_alloc(){
+task_t* task_alloc(){
   return pmm->alloc(sizeof(task_t));
 }
 
@@ -75,13 +76,6 @@ void tty_reader(void *arg) {
   }
 }
 
-// static void test(void *arg){
-//   while(1){
-//     atom_printf("%d", arg);
-//     for(int i=0;i<1000000;i++);
-//   }
-  
-// }
 
 static void os_init() {
   pmm->init();
@@ -94,13 +88,6 @@ static void os_init() {
   os_irq(100, EVENT_YIELD, yield_handler);
   kmt->init();
 
-  // pool_init(4,1,1);
- 
-
-  // dev->init();
-  
-
-  // while(1);
   
 }
 
@@ -115,6 +102,33 @@ static void os_run() {
 
 
 
+
+
+
+
+//EVENT_SYSCALL
+static Context *syscall_handler(Event ev, Context *ctx){
+  // TODO
+  atom_printf("$rax:%d", ctx->GPRx);
+  switch (ctx->rax)
+  {
+  case SYS_kputc:
+    uproc->kputc(current_task, ctx->GPR1);
+    break;
+  case SYS_fork:
+    break;
+  default:
+    break;
+  }
+  return ctx;
+}
+
+
+
+
+
+
+
 // EVENT_PAGEFAULT
 static Context *page_handler(Event ev, Context *ctx){
   panic("pagefault");
@@ -123,22 +137,10 @@ static Context *page_handler(Event ev, Context *ctx){
 
 
 
-//EVENT_SYSCALL
-static Context *syscall_handler(Event ev, Context *ctx){
-  // TODO
-  atom_printf("%d", ctx->rax);
-  panic("syscall");
-
-}
-
 
 //EVENT_IRQ_IODEV
 static Context *iodev_handler(Event ev, Context *ctx){
-  putch('I');
-  // kmt->sem_signal(&((tty_t *)ttys[0]->ptr)->cooked);
-  // kmt->sem_signal(&((tty_t *)ttys[1]->ptr)->cooked);
-  // return ctx;
-  // yield();
+  
   return ctx;
 }
 
