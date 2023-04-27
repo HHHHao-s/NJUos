@@ -14,14 +14,19 @@ int ucreate(task_t *task, const char *name, void (*entry)(void *arg), size_t len
     task->arg = NULL;
 
     protect(&task->as);
+
     void *place = pmm->alloc(task->as.pgsize);
     memcpy(place, entry, len);
+    void *begin =  task->as.area.start;
+    map(&task->as, begin,place, MMAP_READ|MMAP_WRITE);
 
-    map(&task->as, task->as.area.start,place, MMAP_READ);
+    void *pstack = pmm->alloc(task->as.pgsize);
+    void *vstack = task->as.area.end-task->as.pgsize;
+    map(&task->as, vstack, pstack, MMAP_READ|MMAP_WRITE);
 
-    task->context = ucontext(&task->as ,(Area){.start=&task->fence + 1,.end=task+1},task->as.area.start);
-    
-    task->entry = place;
+    task->context = ucontext(&task->as ,(Area){.start=&task->fence + 1,.end=task+1},begin);
+    task->context->rsp = (uint64_t)vstack;
+    task->entry = begin;
 
     strncpy(task->name, name, KMT_NAME_SIZE);
     memset(task->fence, 'x', KMT_FENCE_SIZE);
