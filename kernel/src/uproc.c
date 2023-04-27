@@ -4,18 +4,27 @@
 #include "initcode.inc"
 
 
-int ucreate(task_t *task, const char *name, void (*entry)(void *arg), void *arg){
+int ucreate(task_t *task, const char *name, void (*entry)(void *arg), size_t len){
     // panic("ucreate");
     char buf[32];
     strncpy(buf,name,32);
     kmt->spin_init(&task->lock, strcat(buf, "user spin lock") );
     task->status = RUNNABLE;
-    task->entry = entry;
-    task->arg = arg;
+
+    
+    
+    task->arg = NULL;
 
     protect(&task->as);
-    task->context = ucontext(&task->as ,(Area){.start=&task->fence + 1,.end=task+1},entry);
+    void *place = pmm->alloc(task->as.pgsize);
+    memmove(place, entry, len);
+
+    map(&task->as, task->as.area.start,place, MMAP_READ);
+
+    task->context = ucontext(&task->as ,(Area){.start=&task->fence + 1,.end=task+1},task->as.area.start);
     
+    task->entry = place;
+
     strncpy(task->name, name, KMT_NAME_SIZE);
     memset(task->fence, 'x', KMT_FENCE_SIZE);
     return task_list_insert(task);
@@ -25,7 +34,9 @@ int ucreate(task_t *task, const char *name, void (*entry)(void *arg), void *arg)
 static void uproc_init()
 {
     vme_init(pmm->alloc, pmm->free);
-    ucreate(task_alloc(),"user proc", (void (*)(void *))_init, NULL);
+
+
+    ucreate(task_alloc(),"user proc", (void (*)(void *))_init, _init_len);
 
 }
 
