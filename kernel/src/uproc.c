@@ -11,8 +11,6 @@ int ucreate(task_t *task, const char *name, void (*entry)(void *arg), size_t len
     kmt->spin_init(&task->lock, strcat(buf, "user spin lock") );
     task->status = RUNNABLE;
 
-    
-    
     task->arg = NULL;
 
     protect(&task->as);
@@ -21,7 +19,7 @@ int ucreate(task_t *task, const char *name, void (*entry)(void *arg), size_t len
 
     map(&task->as, task->as.area.start+task->as.pgsize,place, MMAP_READ);
 
-    task->context = ucontext(&task->as ,(Area){.start=&task->fence + 1,.end=task+1},task->as.area.start+task->as.pgsize);
+    task->context = ucontext(&task->as ,(Area){.start=&task->fence + 1,.end=task+1},place);
     
     task->entry = place;
 
