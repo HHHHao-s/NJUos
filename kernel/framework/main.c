@@ -6,6 +6,7 @@ int main() {
   cte_init(os->trap);
   os->init();
   uproc->init();
+  iset(true);// 开中断
   yield();
   while(1);
   return 1;
