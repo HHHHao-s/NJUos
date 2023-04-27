@@ -6,7 +6,7 @@ int main() {
   cte_init(os->trap);
   os->init();
   uproc->init();
-  
+  yield();
   while(1);
   return 1;
 }
