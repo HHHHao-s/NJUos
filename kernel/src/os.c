@@ -131,7 +131,7 @@ static Context *syscall_handler(Event ev, Context *ctx){
 
 // EVENT_PAGEFAULT
 static Context *page_handler(Event ev, Context *ctx){
-  uintptr_t vaddr = ROUNDDOWN(ev.ref, current_task->as.pgsize); // ev.ref 保存着产生pagefault的内存引用
+  uintptr_t vaddr = ROUNDDOWN(current_task->as.area.start + ev.ref, current_task->as.pgsize); // ev.ref 保存着产生pagefault的内存引用
   
   // 先做最简单的映射
   map(&current_task->as, (void *)vaddr, pmm->alloc(current_task->as.pgsize), MMAP_READ|MMAP_WRITE);
