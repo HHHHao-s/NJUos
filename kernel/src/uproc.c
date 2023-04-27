@@ -17,7 +17,7 @@ int ucreate(task_t *task, const char *name, void (*entry)(void *arg), size_t len
 
     protect(&task->as);
     void *place = pmm->alloc(task->as.pgsize);
-    memmove(place, entry, len);
+    memcpy(place, entry, len);
 
     map(&task->as, task->as.area.start,place, MMAP_READ);
 
