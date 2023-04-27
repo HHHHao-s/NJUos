@@ -7,6 +7,6 @@ int main() {
   os->init();
   uproc->init();
   
-  
+  while(1);
   return 1;
 }
