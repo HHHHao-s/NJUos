@@ -22,10 +22,11 @@ int ucreate(task_t *task, const char *name, void (*entry)(void *arg), size_t len
 
     void *pstack = pmm->alloc(task->as.pgsize);
     void *vstack = task->as.area.end-task->as.pgsize;
+    uint64_t vrsp = (uint64_t)task->as.area.end;
     map(&task->as, vstack, pstack, MMAP_READ|MMAP_WRITE);
 
     task->context = ucontext(&task->as ,(Area){.start=&task->fence + 1,.end=task+1},begin);
-    task->context->rsp = (uint64_t)vstack;
+    task->context->rsp = vrsp;
     task->entry = begin;
 
     strncpy(task->name, name, KMT_NAME_SIZE);
