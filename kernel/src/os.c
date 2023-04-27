@@ -109,7 +109,7 @@ static void os_run() {
 //EVENT_SYSCALL
 static Context *syscall_handler(Event ev, Context *ctx){
   // TODO
-  atom_printf("$rax:%d", ctx->GPRx);
+
   switch (ctx->rax)
   {
   case SYS_kputc:
