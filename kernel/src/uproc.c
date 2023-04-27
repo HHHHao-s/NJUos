@@ -12,7 +12,10 @@ int ucreate(task_t *task, const char *name, void (*entry)(void *arg), void *arg)
     task->status = RUNNABLE;
     task->entry = entry;
     task->arg = arg;
+
+    protect(&task->as);
     task->context = ucontext(&task->as ,(Area){.start=&task->fence + 1,.end=task+1},entry);
+    
     strncpy(task->name, name, KMT_NAME_SIZE);
     memset(task->fence, 'x', KMT_FENCE_SIZE);
     return task_list_insert(task);
