@@ -116,7 +116,7 @@ static Context *syscall_handler(Event ev, Context *ctx){
     ctx->GPRx =(int)uproc->kputc(current_task, (char)ctx->GPR1);
     break;
   case SYS_fork:
-    break;
+    uproc->fork(current_task); // 这个不能规定返回值
   case SYS_exit:
     ctx->GPRx =(int)uproc->exit(current_task, (int)ctx->GPRx);
     break;

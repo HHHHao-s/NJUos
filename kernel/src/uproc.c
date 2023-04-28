@@ -1,32 +1,62 @@
 #include <os.h>
 #include <syscall.h>
-
+#include <hashmap.h>
 #include "initcode.inc"
 
+// 直接赋值成最大的id
+static void assign_id(int *_id){
+    static int id_top=1;
+    int id;
+    while(!(id=atomic_xchg(&id_top, 0)));// acquire lock
+    _id = id++;
+    atomic_xchg(&id_top,id);
+}
+
+// 记录map，更新pa的引用次数，fork时简单的replay
+static void log_map(task_t *task, void *vaddr, void *paddr, int prot){
+    increase(paddr);
+    task->log[task->log_len].va =vaddr;
+    task->log[task->log_len].pa =paddr;
+    task->log_len++;
+    map(&task->as,vaddr, paddr, prot);
+}
+
+
+static void replay(task_t *taskold, task_t *tasknew){
+
+    for(int i=0;i<taskold->log_len;i++){
+        map(&taskold->as, taskold->log[i].va, NULL, MMAP_NONE);
+        map(&taskold->as, taskold->log[i].va, taskold->log[i].pa, MMAP_READ);// 修改映射成只读，当pagefault时，查看ref，决定cow或改映射
+        
+        log_map(tasknew, taskold->log[i].va, taskold->log[i].pa, MMAP_READ);
+    }
+}
+    
 
 int uinit(task_t *task, const char *name, void (*entry)(void *arg), size_t len){
-    // panic("ucreate");
-
-    task->id = 1;
+    
+    
+    assign_id(&task->id);
+    
     char buf[32];
     strncpy(buf,name,32);
     kmt->spin_init(&task->lock, strcat(buf, "user spin lock") );
     task->status = RUNNABLE;
-
     task->arg = NULL;
-
+    task->log_len=0;
+    task->parent = NULL;
     protect(&task->as);
 
     void *place = pmm->alloc(task->as.pgsize);
     memcpy(place, entry, len);
     void *begin =  task->as.area.start;
-    map(&task->as, begin,place, MMAP_READ|MMAP_WRITE);
+    log_map(task, begin,place, MMAP_READ|MMAP_WRITE);
 
     void *pstack = pmm->alloc(task->as.pgsize);
     uint64_t vrsp = (uint64_t)task->as.area.end;
     void *vstack = (void *)vrsp-task->as.pgsize;
     
-    map(&task->as, vstack, pstack, MMAP_READ|MMAP_WRITE);
+    log_map(task, vstack, pstack, MMAP_READ|MMAP_WRITE);
 
     task->context = ucontext(&task->as ,(Area){.start=&task->fence + 1,.end=task+1},begin);
     task->context->rsp = vrsp; // 防止指针超出栈
@@ -55,8 +85,19 @@ static int kputc(task_t *task, char ch)
 
 static int fork(task_t *task)
 {
-    panic("fork");
+    task_t *tasknew = (task_t *)pmm->alloc(sizeof(task_t));
+    memcpy(tasknew, task, sizeof(task_t));
 
+    tasknew->parent=task;
+
+    protect(&tasknew->as); // 重新初始化页表
+    replay(task, tasknew);
+    tasknew->context->cr3 = tasknew->as.ptr;
+    tasknew->context->GPRx = 0;
+
+    task->context->GPRx = tasknew->id;
+    
+    
 }
 
 static int wait(task_t *task, int *status)
@@ -66,7 +107,9 @@ static int wait(task_t *task, int *status)
 
 static int exit(task_t *task, int status)
 {
-    panic("exit");
+    for(int i=0;i<task->log_len;i++){
+        decrease(task->log[i].pa);// ref减小到0就会free掉
+    }
     unprotect(&task->as);
     kmt->teardown(task);
     return status;

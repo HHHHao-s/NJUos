@@ -54,6 +54,7 @@ static uintptr_t baseof(uintptr_t addr) {
   return addr & ~(mmu.pgsize - 1);
 }
 
+// 一边查一边初始化，返回存放pa的指针
 static uintptr_t *ptwalk(AddrSpace *as, uintptr_t addr, int flags) {
   uintptr_t cur = (uintptr_t)&as->ptr;
 
@@ -74,7 +75,7 @@ static uintptr_t *ptwalk(AddrSpace *as, uintptr_t addr, int flags) {
   bug();
 }
 
-static void teardown(int level, uintptr_t *pt) {
+static void teardown(int level, uintptr_t *pt) { // 递归释放
   if (level > mmu.ptlevels) return;
   for (int index = 0; index < (1 << mmu.pgtables[level].bits); index++) {
     if ((pt[index] & PTE_P) && (pt[index] & PTE_U)) {
@@ -146,7 +147,7 @@ void map(AddrSpace *as, void *va, void *pa, int prot) {
   uintptr_t *ptentry = ptwalk(as, (uintptr_t)va, PTE_W | PTE_U);
   if (prot == MMAP_NONE) {
     panic_on(!(*ptentry & PTE_P), "unmapping a non-mapped page");
-    *ptentry = 0;
+    *ptentry = 0; // 取消映射和unprotect不会释放pa
   } else {
     panic_on(*ptentry & PTE_P, "remapping a mapped page");
     uintptr_t pte = (uintptr_t)pa | PTE_P | PTE_U | ((prot & MMAP_WRITE) ? PTE_W : 0);
