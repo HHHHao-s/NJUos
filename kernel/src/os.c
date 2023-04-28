@@ -113,9 +113,31 @@ static Context *syscall_handler(Event ev, Context *ctx){
   switch (ctx->rax)
   {
   case SYS_kputc:
-    uproc->kputc(current_task, ctx->GPR1);
+    ctx->GPRx =(int)uproc->kputc(current_task, (char)ctx->GPR1);
     break;
   case SYS_fork:
+    break;
+  case SYS_exit:
+    ctx->GPRx =(int)uproc->exit(current_task, (int)ctx->GPRx);
+    break;
+  case SYS_wait:
+    ctx->GPRx =(int)uproc->wait(current_task, (int *)&ctx->GPRx);
+    break;
+  case SYS_mmap:
+    ctx->GPRx =(uint64_t)uproc->mmap(current_task, (void *)ctx->GPRx, (int)ctx->GPR1, (int)ctx->GPR2, (int)ctx->GPR3);
+    break;
+  case SYS_getpid:
+    
+    ctx->GPRx =(int)uproc->getpid(current_task);
+    break;
+  case SYS_sleep:
+    ctx->GPRx = (int)uproc->sleep(current_task, (int)ctx->GPRx);
+    break;
+  case SYS_kill:
+    ctx->GPRx = (int)uproc->kill(current_task, (int)ctx->GPRx);
+    break;
+  case SYS_uptime:
+    ctx->GPRx = (int64_t)uproc->uptime(current_task);
     break;
   default:
     break;
