@@ -4,8 +4,10 @@
 #include "initcode.inc"
 
 
-int ucreate(task_t *task, const char *name, void (*entry)(void *arg), size_t len){
+int uinit(task_t *task, const char *name, void (*entry)(void *arg), size_t len){
     // panic("ucreate");
+
+    task->id = 1;
     char buf[32];
     strncpy(buf,name,32);
     kmt->spin_init(&task->lock, strcat(buf, "user spin lock") );
@@ -40,7 +42,7 @@ static void uproc_init()
     vme_init(pmm->alloc, pmm->free);
 
 
-    ucreate(task_alloc(),"user proc", (void (*)(void *))_init, _init_len);
+    uinit(task_alloc(),"user proc", (void (*)(void *))_init, _init_len);
 
 }
 
@@ -63,7 +65,9 @@ static int wait(task_t *task, int *status)
 
 static int exit(task_t *task, int status)
 {
-    panic("exit");
+    unprotect(&task->as);
+    kmt->teardown(task);
+    return status;
 }
 
 static int kill(task_t *task, int pid)
