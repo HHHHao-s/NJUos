@@ -80,15 +80,16 @@
             "miDebuggerPath": "/usr/bin/gdb"
         },
         {
-            "name": "C/C++: L2",
+            "name": "C/C++: L3",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${fileDirname}/${fileBasenameNoExtension}",
+            "program": "${workspaceRoot}/kernel/build/kernel-x86_64-qemu.elf",
             "args": [],
-            "stopAtEntry": false,
+            "stopAtEntry": true,
             "cwd": "${fileDirname}",
             "environment": [],
             "externalConsole": false,
+            "miDebuggerServerAddress": "localhost:1234",
             "MIMode": "gdb",
             "setupCommands": [
                 {
@@ -102,7 +103,6 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "crepl",
             "miDebuggerPath": "/usr/bin/gdb"
         }
     ]

@@ -17,7 +17,8 @@
         "unistd.h": "c",
         "unistd_64.h": "c",
         "stdlib.h": "c",
-        "dlfcn.h": "c"
+        "dlfcn.h": "c",
+        "*.inc": "c"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }
