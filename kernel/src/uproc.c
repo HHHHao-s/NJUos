@@ -29,7 +29,7 @@ int uinit(task_t *task, const char *name, void (*entry)(void *arg), size_t len){
     map(&task->as, vstack, pstack, MMAP_READ|MMAP_WRITE);
 
     task->context = ucontext(&task->as ,(Area){.start=&task->fence + 1,.end=task+1},begin);
-    task->context->rsp = vrsp-16; // 防止指针超出栈
+    task->context->rsp = vrsp; // 防止指针超出栈
     task->entry = begin;
 
     strncpy(task->name, name, KMT_NAME_SIZE);
@@ -66,6 +66,7 @@ static int wait(task_t *task, int *status)
 
 static int exit(task_t *task, int status)
 {
+    panic("exit");
     unprotect(&task->as);
     kmt->teardown(task);
     return status;
