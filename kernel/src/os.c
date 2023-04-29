@@ -110,6 +110,8 @@ static void os_run() {
 static Context *syscall_handler(Event ev, Context *ctx){
   // TODO
 
+  current_task->context = ctx; // save 起来
+
   switch (ctx->rax)
   {
   case SYS_kputc:
