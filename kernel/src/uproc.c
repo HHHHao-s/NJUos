@@ -93,14 +93,20 @@ static int fork(task_t *task)
     assign_id(&tasknew->id);
     protect(&tasknew->as); // 重新初始化页表
     
-    replay(task, tasknew);
+    
     // tasknew->context->cr3 = tasknew->as.ptr;
     // tasknew->context->GPRx = 0;
     tasknew->context = ucontext(&tasknew->as ,(Area){.start=&tasknew->fence + 1,.end=tasknew+1},(void *)task->context->rip);
+    uint64_t oldrsp0=tasknew->context->rsp0;
+    void *oldcr3=tasknew->context->cr3;
     memcpy(tasknew->context, task->context, sizeof(Context));
     tasknew->context->rax = 0;
-
+    tasknew->context->rsp0 = oldrsp0;
+    tasknew->context->cr3 = oldcr3;
     tasknew->status = RUNNABLE;
+
+    replay(task, tasknew);
+
     task->context->GPRx = tasknew->id;
 
     task_list_insert(tasknew);
