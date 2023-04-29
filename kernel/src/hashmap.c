@@ -1,3 +1,4 @@
+#include <os.h>
 #include <hashmap.h>
 
 void hash_add(void *_pa, int _ref){

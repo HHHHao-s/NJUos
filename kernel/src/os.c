@@ -1,7 +1,7 @@
 // #include <common.h>
 #include <os.h>
 #include <devices.h>
-
+#include <hashmap.h>
 
 static void os_run();
 static Context * os_trap(Event ev, Context *context);
@@ -151,17 +151,29 @@ static Context *syscall_handler(Event ev, Context *ctx){
 
 
 
-// EVENT_PAGEFAULT
+// EVENT_PAGEFAULT 将旧的pa减少引用次数，将va映射成旧的pa的拷贝，更改log
 static Context *page_handler(Event ev, Context *ctx){
   atom_printf("%p\n", ev.ref);
-  panic("pagefault");
-  uintptr_t vaddr = ROUNDDOWN(current_task->as.area.start + ev.ref, current_task->as.pgsize); // ev.ref 保存着产生pagefault的内存引用
   
-  // 先做最简单的映射
-  
-  map(&current_task->as, (void *)vaddr, pmm->alloc(current_task->as.pgsize), MMAP_READ|MMAP_WRITE);
-  
+  int index=0;
+  void * va = (void *)ROUNDDOWN(ev.ref, current_task->as.pgsize);
 
+  for(;index<current_task->log_len;index++){
+    if(current_task->log[index].va == (uintptr_t)va) break;
+  }
+  
+  panic_on(index==current_task->log_len,"page_handler");
+
+  void *pa_old = (void *)current_task->log[index].pa;
+  void *pa_new = (void *)pmm->alloc(current_task->as.pgsize);
+
+  memcpy(pa_new, pa_old, current_task->as.pgsize);
+
+  map(&current_task->as, va, NULL, MMAP_NONE);
+  map(&current_task->as, va, pa_new, MMAP_READ|MMAP_WRITE);
+  current_task->log[index].pa = (uintptr_t)pa_new;
+  decrease(pa_old);
+  increase(pa_new);
 
   return ctx;
 

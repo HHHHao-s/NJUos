@@ -8,15 +8,15 @@ static void assign_id(int *_id){
     static int id_top=1;
     int id;
     while(!(id=atomic_xchg(&id_top, 0)));// acquire lock
-    _id = id++;
+    *_id = id++;
     atomic_xchg(&id_top,id);
 }
 
 // 记录map，更新pa的引用次数，fork时简单的replay
-static void log_map(task_t *task, void *vaddr, void *paddr, int prot){
+void log_map(task_t *task, void *vaddr, void *paddr, int prot){
     increase(paddr);
-    task->log[task->log_len].va =vaddr;
-    task->log[task->log_len].pa =paddr;
+    task->log[task->log_len].va = (uintptr_t)vaddr;
+    task->log[task->log_len].pa = (uintptr_t)paddr;
     task->log_len++;
     map(&task->as,vaddr, paddr, prot);
 }
@@ -25,10 +25,10 @@ static void log_map(task_t *task, void *vaddr, void *paddr, int prot){
 static void replay(task_t *taskold, task_t *tasknew){
 
     for(int i=0;i<taskold->log_len;i++){
-        map(&taskold->as, taskold->log[i].va, NULL, MMAP_NONE);
-        map(&taskold->as, taskold->log[i].va, taskold->log[i].pa, MMAP_READ);// 修改映射成只读，当pagefault时，查看ref，决定cow或改映射
+        map(&taskold->as, (void *)taskold->log[i].va, NULL, MMAP_NONE);
+        map(&taskold->as, (void *)taskold->log[i].va, (void *)taskold->log[i].pa, MMAP_READ);// 修改映射成只读，当pagefault时，查看ref，决定cow或改映射
         
-        log_map(tasknew, taskold->log[i].va, taskold->log[i].pa, MMAP_READ);
+        map(&tasknew->as, (void *)taskold->log[i].va, (void *)taskold->log[i].pa, MMAP_READ);// 记录是一样的，所以不用log_map
     }
 }
     
@@ -59,7 +59,7 @@ int uinit(task_t *task, const char *name, void (*entry)(void *arg), size_t len){
     log_map(task, vstack, pstack, MMAP_READ|MMAP_WRITE);
 
     task->context = ucontext(&task->as ,(Area){.start=&task->fence + 1,.end=task+1},begin);
-    task->context->rsp = vrsp; // 防止指针超出栈
+    task->context->rsp = vrsp; 
     task->entry = begin;
 
     strncpy(task->name, name, KMT_NAME_SIZE);
@@ -90,14 +90,15 @@ static int fork(task_t *task)
 
     tasknew->parent=task;
 
+    assign_id(&tasknew->id);
     protect(&tasknew->as); // 重新初始化页表
     replay(task, tasknew);
-    tasknew->context->cr3 = tasknew->as.ptr;
+
     tasknew->context->GPRx = 0;
 
     task->context->GPRx = tasknew->id;
     
-    
+    return 0;// 没有意义
 }
 
 static int wait(task_t *task, int *status)
@@ -108,7 +109,7 @@ static int wait(task_t *task, int *status)
 static int exit(task_t *task, int status)
 {
     for(int i=0;i<task->log_len;i++){
-        decrease(task->log[i].pa);// ref减小到0就会free掉
+        decrease((void *)task->log[i].pa);// ref减小到0就会free掉
     }
     unprotect(&task->as);
     kmt->teardown(task);
