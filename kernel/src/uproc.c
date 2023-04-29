@@ -95,7 +95,11 @@ static int fork(task_t *task)
     
     replay(task, tasknew);
     // tasknew->context->cr3 = tasknew->as.ptr;
-    tasknew->context->GPRx = 0;
+    // tasknew->context->GPRx = 0;
+    ucontext(&tasknew->as ,(Area){.start=&tasknew->fence + 1,.end=tasknew+1},(void *)task->context->rip);
+    memcpy(tasknew->context, task->context, sizeof(Context));
+    tasknew->context->rax = 0;
+
     tasknew->status = RUNNABLE;
     task->context->GPRx = tasknew->id;
 
