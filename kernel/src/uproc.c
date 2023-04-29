@@ -98,6 +98,7 @@ static int fork(task_t *task)
 
 
     // ucontext(&task->as,(Area){.start=task->fence, .end=task+1}, 0);
+    
     tasknew->context->cr3 = tasknew->as.ptr;
     tasknew->context->GPRx = 0;
     
@@ -115,7 +116,7 @@ static int fork(task_t *task)
     task->context->GPRx = tasknew->id;
 
     task_list_insert(tasknew);
-    // yield();
+    yield();
     return 0;// 没有意义
 }
 
