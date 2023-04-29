@@ -87,22 +87,27 @@ static int fork(task_t *task)
 {
     task_t *tasknew = (task_t *)pmm->alloc(sizeof(task_t));
     memcpy(tasknew, task, sizeof(task_t));
-
+    
     tasknew->parent=task;
 
     assign_id(&tasknew->id);
     protect(&tasknew->as); // 重新初始化页表
     
+    uint64_t offect =  (uint64_t)task->stack - (uint64_t)task->context;
+    tasknew->context = (Context *)((uint64_t)tasknew->context - offect);
+
+
+    // ucontext(&task->as,(Area){.start=task->fence, .end=task+1}, 0);
+    tasknew->context->cr3 = tasknew->as.ptr;
+    tasknew->context->GPRx = 0;
     
-    // tasknew->context->cr3 = tasknew->as.ptr;
-    // tasknew->context->GPRx = 0;
-    uint64_t offect =  (uint64_t)task->stack - (uint64_t)task->context->rsp0;
-    uint64_t oldrsp0=tasknew->context->rsp0;
-    void *oldcr3=tasknew->context->cr3;
-    memcpy(tasknew->context, task->context, sizeof(Context));
-    tasknew->context->rax = 0;
-    tasknew->context->rsp0 = oldrsp0 - offect;
-    tasknew->context->cr3 = oldcr3;
+    // uint64_t oldrsp0=tasknew->context->rsp0;
+    // void *oldcr3=tasknew->context->cr3;
+    
+    // tasknew->context->rax = 0;
+    // tasknew->context->rsp0 = oldrsp0 - offect;
+    // tasknew->context->cr3 = oldcr3;
+
     tasknew->status = RUNNABLE;
 
     replay(task, tasknew);
