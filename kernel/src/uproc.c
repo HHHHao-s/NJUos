@@ -94,7 +94,7 @@ static int fork(task_t *task)
     protect(&tasknew->as); // 重新初始化页表
     
     uint64_t offect =  (uint64_t)(task+1) - (uint64_t)task->context;
-    tasknew->context = (Context *)((uint64_t)tasknew->context - offect);
+    tasknew->context = (Context *)((uint64_t)(tasknew+1)- offect);
 
 
     // ucontext(&task->as,(Area){.start=task->fence, .end=task+1}, 0);
