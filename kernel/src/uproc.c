@@ -92,6 +92,7 @@ static int fork(task_t *task)
 
     assign_id(&tasknew->id);
     protect(&tasknew->as); // 重新初始化页表
+    tasknew->context->cr3 = tasknew->as.ptr;
     replay(task, tasknew);
 
     tasknew->context->GPRx = 0;
