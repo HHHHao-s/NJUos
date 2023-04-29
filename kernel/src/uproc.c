@@ -97,7 +97,6 @@ static int fork(task_t *task)
     // tasknew->context->cr3 = tasknew->as.ptr;
     // tasknew->context->GPRx = 0;
     uint64_t offect =  (uint64_t)task->stack - (uint64_t)task->context->rsp0;
-    tasknew->context = ucontext(&tasknew->as ,(Area){.start=&tasknew->fence + 1,.end=tasknew+1},(void *)task->context->rip);
     uint64_t oldrsp0=tasknew->context->rsp0;
     void *oldcr3=tasknew->context->cr3;
     memcpy(tasknew->context, task->context, sizeof(Context));
