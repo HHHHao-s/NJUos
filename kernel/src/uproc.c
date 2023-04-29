@@ -97,7 +97,9 @@ static int fork(task_t *task)
     tasknew->context->GPRx = 0;
     tasknew->status = RUNNABLE;
     task->context->GPRx = tasknew->id;
-    
+
+    task_list_insert(tasknew);
+
     return 0;// 没有意义
 }
 
