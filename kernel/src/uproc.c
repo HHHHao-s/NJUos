@@ -99,7 +99,7 @@ static int fork(task_t *task)
 
     // ucontext(&task->as,(Area){.start=task->fence, .end=task+1}, 0);
 
-    tasknew->context->cr3 = tasknew->as.ptr;
+    // tasknew->context->cr3 = tasknew->as.ptr;
     tasknew->context->GPRx = 0;
     
     // uint64_t oldrsp0=tasknew->context->rsp0;
