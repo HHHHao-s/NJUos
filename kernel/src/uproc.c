@@ -116,7 +116,7 @@ static int fork(task_t *task)
     task->context->GPRx = tasknew->id;
 
     task_list_insert(tasknew);
-    yield();
+    // yield();
     return 0;// 没有意义
 }
 
