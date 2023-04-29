@@ -2,7 +2,7 @@
 #define KMT_STACK_SIZE 8192
 #define KMT_FENCE_SIZE 32
 #define KMT_NAME_SIZE 32
-#define KMT_LOG_SIZE 32
+#define KMT_LOG_SIZE 8
 
 int task_list_insert(task_t *task);
 void task_list_delete(task_t *task);
