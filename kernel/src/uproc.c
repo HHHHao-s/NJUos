@@ -93,12 +93,12 @@ static int fork(task_t *task)
     assign_id(&tasknew->id);
     protect(&tasknew->as); // 重新初始化页表
     
-    uint64_t offect =  (uint64_t)task->stack - (uint64_t)task->context;
+    uint64_t offect =  (uint64_t)(task+1) - (uint64_t)task->context;
     tasknew->context = (Context *)((uint64_t)tasknew->context - offect);
 
 
     // ucontext(&task->as,(Area){.start=task->fence, .end=task+1}, 0);
-    
+
     tasknew->context->cr3 = tasknew->as.ptr;
     tasknew->context->GPRx = 0;
     
