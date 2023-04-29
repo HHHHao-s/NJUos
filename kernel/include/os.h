@@ -32,6 +32,7 @@ struct task {
       enum {
       RUNNING = 1,
       RUNNABLE,
+      ZOMBIE,
       DEAD,
       CAN_BE_CLEAR
       }status;
@@ -43,7 +44,7 @@ struct task {
       Context *context;
       AddrSpace as;
       struct task *parent;
-
+      int exit_status;
       struct{
         struct {uintptr_t va, pa;} log[KMT_LOG_SIZE]; // 记录map过的pa
         int log_len;

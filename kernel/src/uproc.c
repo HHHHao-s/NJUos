@@ -95,7 +95,7 @@ static int fork(task_t *task)
     replay(task, tasknew);
 
     tasknew->context->GPRx = 0;
-
+    tasknew->status = RUNNABLE;
     task->context->GPRx = tasknew->id;
     
     return 0;// 没有意义
@@ -112,7 +112,14 @@ static int exit(task_t *task, int status)
         decrease((void *)task->log[i].pa);// ref减小到0就会free掉
     }
     unprotect(&task->as);
-    kmt->teardown(task);
+    if(task->parent){
+        task->status = ZOMBIE;
+        task->exit_status = status;
+    }       
+    else{
+        task->status = CAN_BE_CLEAR;
+        kmt->teardown(task);
+    }
     return status;
 }
 
