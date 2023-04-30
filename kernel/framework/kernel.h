@@ -17,6 +17,9 @@
 #define current_task currents[cpu_current()]
 #define P(s) kmt->sem_wait(s)
 #define V(s) kmt->sem_signal(s)
+#define L(s) kmt->spin_lock(s)
+#define U(s) kmt->spin_unlock(s)
+
 
 typedef struct spinlock spinlock_t;
 typedef struct semaphore sem_t;
