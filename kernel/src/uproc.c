@@ -110,6 +110,8 @@ static int fork(task_t *task)
 
     task_list_insert(tasknew);
 
+    yield();
+
     return 0;// 没有意义
 }
 
