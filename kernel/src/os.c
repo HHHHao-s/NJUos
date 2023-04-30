@@ -156,6 +156,8 @@ static Context *syscall_handler(Event ev, Context *ctx){
 
 // EVENT_PAGEFAULT 将旧的pa减少引用次数，将va映射成旧的pa的拷贝，更改log
 static Context *page_handler(Event ev, Context *ctx){
+  current_task->context = ctx;
+
   atom_printf("%p\n", ev.ref);
   
   int index=0;
@@ -194,7 +196,8 @@ static Context *iodev_handler(Event ev, Context *ctx){
 
 // EVENT_ERROR
 static Context *error_handler(Event ev, Context *ctx){
-  panic("error_handler");
+  putstr(ev.msg);
+  panic("error");
 }
 
 
