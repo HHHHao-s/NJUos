@@ -158,7 +158,7 @@ static Context *syscall_handler(Event ev, Context *ctx){
 static Context *page_handler(Event ev, Context *ctx){
   current_task->context = ctx;
 
-  atom_printf("%p\n", ev.ref);
+  atom_printf("%d:%p\n", current_task->id, ev.ref);
   
   int index=0;
   void * va = (void *)ROUNDDOWN(ev.ref, current_task->as.pgsize);
