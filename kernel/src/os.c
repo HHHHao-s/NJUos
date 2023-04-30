@@ -172,7 +172,7 @@ static Context *page_handler(Event ev, Context *ctx){
   void *pa_old = (void *)current_task->log[index].pa;
   void *pa_new = (void *)pmm->alloc(current_task->as.pgsize);
 
-  memcpy(pa_new, pa_old, current_task->as.pgsize);
+  memmove(pa_new, pa_old, current_task->as.pgsize);
 
   map(&current_task->as, va, NULL, MMAP_NONE);
   map(&current_task->as, va, pa_new, MMAP_READ|MMAP_WRITE);
