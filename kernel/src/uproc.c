@@ -29,6 +29,7 @@ static void replay(task_t *taskold, task_t *tasknew){
         map(&taskold->as, (void *)taskold->log[i].va, (void *)taskold->log[i].pa, MMAP_READ);// 修改映射成只读，当pagefault时，查看ref，决定cow或改映射
         
         map(&tasknew->as, (void *)taskold->log[i].va, (void *)taskold->log[i].pa, MMAP_READ);// 记录是一样的，所以不用log_map
+        increase((void *)taskold->log[i].pa);
     }
 }
     
