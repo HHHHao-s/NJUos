@@ -174,8 +174,8 @@ static Context *page_handler(Event ev, Context *ctx){
   map(&current_task->as, va, NULL, MMAP_NONE);
   map(&current_task->as, va, pa_new, MMAP_READ|MMAP_WRITE);
   current_task->log[index].pa = (uintptr_t)pa_new;
-  decrease(pa_old);
-  increase(pa_new);
+  // decrease(pa_old);
+  // increase(pa_new);
 
   return ctx;
 
