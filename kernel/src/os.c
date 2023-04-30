@@ -204,7 +204,7 @@ static Context *inter_handler(Event ev, Context *ctx){
   // putch('i');
   
   yield(); // 将执行到这里的状态保存起来，待调用
-  // ctx->cr3 = current_task->as.ptr;
+  ctx->cr3 = current_task->as.ptr;
   atom_printf("%d",current_task->id);
   atom_printf("%p\n",ctx->cr3);
   return ctx;
@@ -253,8 +253,8 @@ static Context *yield_handler(Event ev, Context *ctx){
 
     // current_task->context->cr3 = current_task->as.ptr;
 
-    atom_printf("%p\n",current_task->as.ptr);
-
+    atom_printf("%p==",current_task->as.ptr);
+    atom_printf("%p\n",current_task->context->cr3);
     return current_task->context;
   } 
   
