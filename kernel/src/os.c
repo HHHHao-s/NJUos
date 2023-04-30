@@ -209,7 +209,7 @@ static Context *inter_handler(Event ev, Context *ctx){
 
 static Context *yield_handler(Event ev, Context *ctx){
   //save
-  // putch('y');
+  putch('y');
   
   // atom_printf("yield_handler\n");
   if(current_task != NULL){ 
