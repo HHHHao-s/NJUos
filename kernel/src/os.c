@@ -282,7 +282,7 @@ static Context * os_trap(Event ev, Context *context){// 在此处，状态已经
   // panic_on(sane_context(next), "returning to invalid context");// 检查next（不检查了）
 
   iset(saved);
-  atom_printf("ret");
+  // atom_printf("ret");
   
   return next;
 }
