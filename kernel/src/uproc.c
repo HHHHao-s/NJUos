@@ -98,7 +98,7 @@ static int fork(task_t *task)
     uint64_t offect =  (uint64_t)(task+1) - (uint64_t)task->context;
     tasknew->context = (Context *)((uint64_t)(tasknew+1)- offect);
 
-    tasknew->context->cr3 = tasknew->as.ptr;
+    // tasknew->context->cr3 = tasknew->as.ptr;
     tasknew->context->GPRx = 0;
     
 
