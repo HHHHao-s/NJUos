@@ -97,18 +97,9 @@ static int fork(task_t *task)
     uint64_t offect =  (uint64_t)(task+1) - (uint64_t)task->context;
     tasknew->context = (Context *)((uint64_t)(tasknew+1)- offect);
 
-
-    // ucontext(&task->as,(Area){.start=task->fence, .end=task+1}, 0);
-
-    // tasknew->context->cr3 = tasknew->as.ptr;
+    
     tasknew->context->GPRx = 0;
     
-    // uint64_t oldrsp0=tasknew->context->rsp0;
-    // void *oldcr3=tasknew->context->cr3;
-    
-    // tasknew->context->rax = 0;
-    // tasknew->context->rsp0 = oldrsp0 - offect;
-    // tasknew->context->cr3 = oldcr3;
 
     tasknew->status = RUNNABLE;
 
@@ -117,7 +108,7 @@ static int fork(task_t *task)
     task->context->GPRx = tasknew->id;
 
     task_list_insert(tasknew);
-    // yield();
+
     return 0;// 没有意义
 }
 
