@@ -251,10 +251,9 @@ static Context *yield_handler(Event ev, Context *ctx){
     // atom_printf("turn to%s\n", current_task->name);
     putch('0'+ current_task->id);
 
-    // current_task->context->cr3 = current_task->as.ptr;
+    current_task->context->cr3 = current_task->as.ptr;
 
-    atom_printf("%p==",current_task->as.ptr);
-    atom_printf("%p\n",current_task->context->cr3);
+    
     return current_task->context;
   } 
   
