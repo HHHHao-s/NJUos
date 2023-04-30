@@ -197,8 +197,10 @@ static Context *iodev_handler(Event ev, Context *ctx){
 static Context *error_handler(Event ev, Context *ctx){
   atom_printf("\n%d:%s:%p",current_task->id, ev.msg,ev.ref);
   // putstr(ev.msg);
-  panic("error");
-  // return ctx;
+  // panic("error");
+  current_task->context = ctx;
+  current_task->context->cr3 = current_task->as.ptr;
+  return current_task->context;
 }
 
 
