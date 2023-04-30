@@ -105,7 +105,7 @@ static Context *syscall_handler(Event ev, Context *ctx){
   // TODO
 
   // kmt->spin_lock(&print_lock);
-
+  ctx->cr3 = current_task->as.ptr;
   current_task->context = ctx; // save 起来
 
   switch (ctx->rax)
@@ -176,7 +176,6 @@ static Context *page_handler(Event ev, Context *ctx){
   current_task->log[index].pa = (uintptr_t)pa_new;
   decrease(pa_old);
   increase(pa_new);
-
   return ctx;
 
 }
