@@ -263,6 +263,9 @@ static Context *yield_handler(Event ev, Context *ctx){
 // 中断发生后会到此处
 static Context * os_trap(Event ev, Context *context){// 在此处，状态已经被保存在context
   // putch('t');
+  int saved = ienabled();
+  iset(0);
+
   Context *next = NULL;
   context->cr3 = current_task->as.ptr;
   for (handler_node *h=handler_head;h;h=h->next) {
@@ -276,6 +279,7 @@ static Context * os_trap(Event ev, Context *context){// 在此处，状态已经
   panic_on(!next, "returning NULL context");
   // panic_on(sane_context(next), "returning to invalid context");// 检查next（不检查了）
 
+  iset(saved);
   
   
   return next;
