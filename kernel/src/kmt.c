@@ -69,6 +69,9 @@ static void kmt_init(){
     kmt_spin_init(&task_list.lock, "task list lock");
     kmt_sem_init(&task_list.having, "task list sem" ,0);
     kmt_spin_init(&print_lock, "print lock");
+    for(int i=0;i<cpu_count();i++){
+        currents[i] = NULL;
+    }
 }
 
 static int kmt_create(task_t *task, const char *name, void (*entry)(void *arg), void *arg){

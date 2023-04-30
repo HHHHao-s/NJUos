@@ -206,7 +206,8 @@ static Context *error_handler(Event ev, Context *ctx){
 static Context *inter_handler(Event ev, Context *ctx){
   // putch('i');
   // L(&current_task->lock);
-  // current_task->context->cr3 = current_task->as.ptr;
+  if(current_task)
+    current_task->context->cr3 = current_task->as.ptr;
   // U(&current_task->lock);
   yield(); // 将执行到这里的状态保存起来，待调用
   ctx->cr3 = current_task->as.ptr;
