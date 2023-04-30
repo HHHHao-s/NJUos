@@ -194,7 +194,8 @@ static Context *iodev_handler(Event ev, Context *ctx){
 static Context *error_handler(Event ev, Context *ctx){
   printf("\n%d:%s:%p",current_task->id, ev.msg,ev.ref);
   // putstr(ev.msg);
-  panic("error");
+  // panic("error");
+  return ctx;
 }
 
 
@@ -203,7 +204,7 @@ static Context *inter_handler(Event ev, Context *ctx){
   // putch('i');
   
   yield(); // 将执行到这里的状态保存起来，待调用
-  ctx->cr3 = current_task->as.ptr;
+  // ctx->cr3 = current_task->as.ptr;
   atom_printf("%p\n",ctx->cr3);
   return ctx;
 
@@ -263,7 +264,7 @@ static Context *yield_handler(Event ev, Context *ctx){
 static Context * os_trap(Event ev, Context *context){// 在此处，状态已经被保存在context
   // putch('t');
   Context *next = NULL;
-  
+  context->cr3 = current_task->as.ptr;
   for (handler_node *h=handler_head;h;h=h->next) {
     if (h->event == ev.event) {
       Context *r = h->handler(ev, context); // 用os_irq注册的handler
