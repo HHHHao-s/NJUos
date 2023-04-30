@@ -205,6 +205,7 @@ static Context *inter_handler(Event ev, Context *ctx){
   
   yield(); // 将执行到这里的状态保存起来，待调用
   // ctx->cr3 = current_task->as.ptr;
+  atom_printf("%d",current_task->id);
   atom_printf("%p\n",ctx->cr3);
   return ctx;
 
