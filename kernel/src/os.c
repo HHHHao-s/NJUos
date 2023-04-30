@@ -104,7 +104,7 @@ static void os_run() {
 static Context *syscall_handler(Event ev, Context *ctx){
   // TODO
 
-  kmt->spin_lock(&print_lock);
+  // kmt->spin_lock(&print_lock);
 
   current_task->context = ctx; // save 起来
 
@@ -141,7 +141,7 @@ static Context *syscall_handler(Event ev, Context *ctx){
   default:
     break;
   }
-  kmt->spin_unlock(&print_lock);
+  // kmt->spin_unlock(&print_lock);
   return ctx;
 }
 
