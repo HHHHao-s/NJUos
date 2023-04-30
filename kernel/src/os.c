@@ -100,12 +100,6 @@ static void os_run() {
 
 }
 
-
-
-
-
-
-
 //EVENT_SYSCALL
 static Context *syscall_handler(Event ev, Context *ctx){
   // TODO
@@ -196,7 +190,7 @@ static Context *iodev_handler(Event ev, Context *ctx){
 
 // EVENT_ERROR
 static Context *error_handler(Event ev, Context *ctx){
-  printf("\n%d:%s",current_task->id, ev.msg);
+  printf("\n%d:%s:%p",current_task->id, ev.msg,ev.ref);
   // putstr(ev.msg);
   panic("error");
 }
