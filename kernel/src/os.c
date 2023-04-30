@@ -196,7 +196,8 @@ static Context *iodev_handler(Event ev, Context *ctx){
 
 // EVENT_ERROR
 static Context *error_handler(Event ev, Context *ctx){
-  putstr(ev.msg);
+  printf("\n%d:%s",current_task->id, ev.msg);
+  // putstr(ev.msg);
   panic("error");
 }
 
