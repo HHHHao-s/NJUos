@@ -155,7 +155,6 @@ static Context *syscall_handler(Event ev, Context *ctx){
 static Context *page_handler(Event ev, Context *ctx){
   // current_task->context = ctx;
 
-
   atom_printf("%d:%p\n", current_task->id, ev.ref);
   
   int index=0;
@@ -174,9 +173,9 @@ static Context *page_handler(Event ev, Context *ctx){
 
   map(&current_task->as, va, NULL, MMAP_NONE);
   map(&current_task->as, va, pa_new, MMAP_READ|MMAP_WRITE);
-  // current_task->log[index].pa = (uintptr_t)pa_new;
-  // decrease(pa_old);
-  // increase(pa_new);
+  current_task->log[index].pa = (uintptr_t)pa_new;
+  decrease(pa_old);
+  increase(pa_new);
 
   return ctx;
 
