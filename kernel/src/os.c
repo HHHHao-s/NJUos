@@ -214,8 +214,7 @@ static Context *inter_handler(Event ev, Context *ctx){
 
 static Context *yield_handler(Event ev, Context *ctx){
   //save
-  bool saved_i = ienabled();
-  iset(false); // 关中断
+
   
   // atom_printf("yield_handler\n");
   // ctx->cr3 = current_task->as.ptr;
@@ -240,7 +239,7 @@ static Context *yield_handler(Event ev, Context *ctx){
   //schedule
   
   if(current_task==NULL){// 到这里还是NULL的话，没有task被创建，直接返回ctx
-    iset(saved_i);
+
     return ctx;
   }else{ 
     kmt->spin_lock(&task_list.lock); // 锁整个链表
@@ -252,8 +251,9 @@ static Context *yield_handler(Event ev, Context *ctx){
     // atom_printf("turn to%s\n", current_task->name);
     putch('0'+ current_task->id);
     // current_task->context->cr3 = current_task->as.ptr;
-    // atom_printf("%p\n",current_task->context->cr3);
-    iset(saved_i);
+    
+    atom_printf("%p\n",current_task->context->cr3);
+
     return current_task->context;
   } 
   
