@@ -215,7 +215,7 @@ static Context *yield_handler(Event ev, Context *ctx){
   iset(false); // 关中断
   
   // atom_printf("yield_handler\n");
-  ctx->cr3 = current_task->as.ptr;
+  // ctx->cr3 = current_task->as.ptr;
   if(current_task != NULL){ 
     kmt->spin_lock(&current_task->lock);
     if(current_task->status==DEAD) {
