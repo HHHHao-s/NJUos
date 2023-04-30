@@ -180,7 +180,7 @@ static Context *page_handler(Event ev, Context *ctx){
   decrease(pa_old);
   increase(pa_new);
 
-  return ctx;
+  return current_task->context;
 
 }
 
