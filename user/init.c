@@ -4,13 +4,16 @@
 
 int main() {
   // Example:
-  char *p = "test\n";
-  
-  for (size_t i = 0; i < 5; i++)
-  {
-    syscall(SYS_kputc,p[i], 0,0,0);
+  // char *pfar = "far\n";
+  // char *pson =  "son\n";
+  int id;
+  if((id=syscall(SYS_fork,0,0,0,0))==0){ // son
+    syscall(SYS_kputc, id+'0',0,0,0);
+  }else{
+    syscall(SYS_kputc, id+'0',0,0,0);
   }
-    
   
+    
+  while(1);
   return 0;
 }
