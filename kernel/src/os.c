@@ -211,7 +211,8 @@ static Context *inter_handler(Event ev, Context *ctx){
 
 static Context *yield_handler(Event ev, Context *ctx){
   //save
-  
+  bool saved_i = ienabled();
+  iset(false); // 关中断
   
   // atom_printf("yield_handler\n");
   ctx->cr3 = current_task->as.ptr;
@@ -236,6 +237,7 @@ static Context *yield_handler(Event ev, Context *ctx){
   //schedule
   
   if(current_task==NULL){// 到这里还是NULL的话，没有task被创建，直接返回ctx
+    iset(saved_i);
     return ctx;
   }else{ 
     kmt->spin_lock(&task_list.lock); // 锁整个链表
@@ -248,6 +250,7 @@ static Context *yield_handler(Event ev, Context *ctx){
     putch('0'+ current_task->id);
     // current_task->context->cr3 = current_task->as.ptr;
     // atom_printf("%p\n",current_task->context->cr3);
+    iset(saved_i);
     return current_task->context;
   } 
   
@@ -259,8 +262,7 @@ static Context *yield_handler(Event ev, Context *ctx){
 static Context * os_trap(Event ev, Context *context){// 在此处，状态已经被保存在context
   // putch('t');
   Context *next = NULL;
-  bool saved_i = ienabled();
-  iset(false); // 关中断
+  
   for (handler_node *h=handler_head;h;h=h->next) {
     if (h->event == ev.event) {
       Context *r = h->handler(ev, context); // 用os_irq注册的handler
@@ -272,7 +274,7 @@ static Context * os_trap(Event ev, Context *context){// 在此处，状态已经
   panic_on(!next, "returning NULL context");
   // panic_on(sane_context(next), "returning to invalid context");// 检查next（不检查了）
 
-  iset(saved_i);
+  
   
   return next;
 }
