@@ -209,7 +209,7 @@ static Context *inter_handler(Event ev, Context *ctx){
 
 static Context *yield_handler(Event ev, Context *ctx){
   //save
-  putch('0'+ current_task->id);
+  
   
   // atom_printf("yield_handler\n");
   if(current_task != NULL){ 
@@ -231,7 +231,7 @@ static Context *yield_handler(Event ev, Context *ctx){
     current_task = task_list.head;
   }
   //schedule
-
+  
   if(current_task==NULL){// 到这里还是NULL的话，没有task被创建，直接返回ctx
     return ctx;
   }else{ 
@@ -242,6 +242,7 @@ static Context *yield_handler(Event ev, Context *ctx){
     current_task->status=RUNNING;
     kmt->spin_unlock(&task_list.lock);
     // atom_printf("turn to%s\n", current_task->name);
+    putch('0'+ current_task->id);
     return current_task->context;
   } 
   
