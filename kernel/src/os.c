@@ -205,10 +205,10 @@ static Context *error_handler(Event ev, Context *ctx){
 // 时钟中断处理程序
 static Context *inter_handler(Event ev, Context *ctx){
   // putch('i');
-  // L(&current_task->lock);
+  L(&current_task->lock);
   if(current_task)
     current_task->context->cr3 = current_task->as.ptr;
-  // U(&current_task->lock);
+  U(&current_task->lock);
   yield(); // 将执行到这里的状态保存起来，待调用
   ctx->cr3 = current_task->as.ptr;
   // atom_printf("%d",current_task->id);
