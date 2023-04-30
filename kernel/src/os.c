@@ -105,7 +105,7 @@ static Context *syscall_handler(Event ev, Context *ctx){
   // TODO
 
   // kmt->spin_lock(&print_lock);
-  ctx->cr3 = current_task->as.ptr;
+  
   current_task->context = ctx; // save 起来
 
   switch (ctx->rax)
@@ -142,6 +142,7 @@ static Context *syscall_handler(Event ev, Context *ctx){
     break;
   }
   // kmt->spin_unlock(&print_lock);
+  ctx->cr3 = current_task->as.ptr;
   return ctx;
 }
 
