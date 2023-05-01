@@ -222,7 +222,7 @@ static Context *inter_handler(Event ev, Context *ctx){
 static Context *yield_handler(Event ev, Context *ctx){
   //save
 
-  task_list_print();
+  // task_list_print();
 
   int saved = ienabled();
   iset(0);
