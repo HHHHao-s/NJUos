@@ -246,6 +246,7 @@ static Context *yield_handler(Event ev, Context *ctx){
   }
   else {
     current_task = task_list.head;
+    current_task->context = ctx;
   }
   //schedule
   
@@ -264,7 +265,7 @@ static Context *yield_handler(Event ev, Context *ctx){
 
 
     atom_printf("%p==%p\n",current_task->as.ptr,current_task->context->cr3);
-    
+
     // current_task->context->cr3=current_task->as.ptr;
     ret = current_task->context;
   } 
