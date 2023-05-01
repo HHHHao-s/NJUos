@@ -223,6 +223,10 @@ static Context *yield_handler(Event ev, Context *ctx){
   //save
 
   
+
+  int saved = ienabled();
+  iset(0);
+  Context *ret = NULL;
   // atom_printf("yield_handler\n");
   // ctx->cr3 = current_task->as.ptr;
   if(current_task != NULL){ 
@@ -247,7 +251,7 @@ static Context *yield_handler(Event ev, Context *ctx){
   
   if(current_task==NULL){// 到这里还是NULL的话，没有task被创建，直接返回ctx
 
-    return ctx;
+    ret= ctx;
   }else{ 
     kmt->spin_lock(&task_list.lock); // 锁整个链表
     do{
@@ -261,10 +265,12 @@ static Context *yield_handler(Event ev, Context *ctx){
 
     atom_printf("%p==",current_task->as.ptr);
     atom_printf("%p\n",current_task->context->cr3);
-    current_task->context->cr3=current_task->as.ptr;
-    return current_task->context;
+    // current_task->context->cr3=current_task->as.ptr;
+    ret = current_task->context;
   } 
-  
+
+  iset(saved);
+  return ret;
 }
 
 
@@ -272,8 +278,8 @@ static Context *yield_handler(Event ev, Context *ctx){
 // 中断发生后会到此处
 static Context * os_trap(Event ev, Context *context){// 在此处，状态已经被保存在context
   // putch('t');
-  int saved = ienabled();
-  iset(0);
+  // int saved = ienabled();
+  // iset(0);
 
   Context *next = NULL;
   // context->cr3 = current_task->as.ptr;
@@ -288,7 +294,7 @@ static Context * os_trap(Event ev, Context *context){// 在此处，状态已经
   panic_on(!next, "returning NULL context");
   // panic_on(sane_context(next), "returning to invalid context");// 检查next（不检查了）
 
-  iset(saved);
+  // iset(saved);
   // atom_printf("ret");
   
   return next;
