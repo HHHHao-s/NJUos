@@ -103,7 +103,7 @@ static int fork(task_t *task)
 
     tasknew->context->cr3 = tasknew->as.ptr;
     tasknew->context->GPRx = 0;
-    
+    tasknew->context->rsp0   = (uintptr_t)(tasknew+1);
 
     tasknew->status = RUNNABLE;
 
