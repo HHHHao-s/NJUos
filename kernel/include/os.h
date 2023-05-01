@@ -6,6 +6,7 @@
 
 int task_list_insert(task_t *task);
 void task_list_delete(task_t *task);
+void task_list_print();
 task_t* task_alloc();
 void log_map(task_t *task, void *vaddr, void *paddr, int prot);
 
