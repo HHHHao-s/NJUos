@@ -88,11 +88,11 @@ static int kputc(task_t *task, char ch)
 
 static int fork(task_t *task)
 {
-    L(&task->lock);
+    
 
     task_t *tasknew = (task_t *)pmm->alloc(sizeof(task_t));
     memcpy(tasknew, task, sizeof(task_t));
-    
+    L(&task->lock);
     tasknew->parent=task;
 
     assign_id(&tasknew->id);
