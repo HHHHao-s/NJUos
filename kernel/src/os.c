@@ -246,7 +246,6 @@ static Context *yield_handler(Event ev, Context *ctx){
   }
   else {
     current_task = task_list.head;
-    current_task->context = ctx;
   }
   //schedule
   

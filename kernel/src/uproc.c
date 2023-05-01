@@ -81,12 +81,15 @@ static void uproc_init()
 
 static int kputc(task_t *task, char ch)
 {
+    
     putch(ch);
     return 0;
 }
 
 static int fork(task_t *task)
 {
+    L(&task->lock);
+
     task_t *tasknew = (task_t *)pmm->alloc(sizeof(task_t));
     memcpy(tasknew, task, sizeof(task_t));
     
@@ -109,8 +112,8 @@ static int fork(task_t *task)
     task->context->GPRx = tasknew->id;
 
     task_list_insert(tasknew);
-
-    yield();
+    U(&task->lock);
+    // yield();
 
     return 0;// 没有意义
 }
