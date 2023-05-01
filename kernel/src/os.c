@@ -143,7 +143,7 @@ static Context *syscall_handler(Event ev, Context *ctx){
   }
   // kmt->spin_unlock(&print_lock);
   
-  current_task->context->cr3 = current_task->as.ptr;
+  // current_task->context->cr3 = current_task->as.ptr;
 
   return current_task->context;
 }
