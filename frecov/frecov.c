@@ -173,8 +173,9 @@ int retrive_long(union dent* entry){
   }
 
 done:
+if(top==0)return 1;
   name[top] = '\0';
-  if(top==0)return 1;
+  
   for(int i=0;i<top;i++){
     putchar(name[i]);
   }
