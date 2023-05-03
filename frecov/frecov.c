@@ -54,8 +54,6 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
-  struct fat32hdr hd1 = {1,2};
-  printf("%u", hd1.BS_jmpBoot);
 
   setbuf(stdout, NULL);
 
