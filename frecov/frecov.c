@@ -191,6 +191,7 @@ void doit(u8 *whole_disk){
     }else if(is_short_dent(entry)){
 
     }
+    entry++;
   }
   
   
