@@ -148,7 +148,7 @@ int retrive_long(union dent* entry){
   // if(ori>3) return 1;
 
   union dent * final_entry =  entry + (ori - 1);
-  if(!(*(((char *)final_entry)+8)=='B' && *(((char *)final_entry)+9)=='M' && *(((char *)final_entry)+10)=='P'))return 1;
+  if(!(*(((char *)final_entry)+8)==0x42 && *(((char *)final_entry)+9)==0x4D && *(((char *)final_entry)+10)==0x50))return 1;
 
   for(int i=1;i<=ori;i++){
     union dent * next_entry =  entry + (ori - i);
