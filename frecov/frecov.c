@@ -135,19 +135,19 @@ u32 FirstSectorofCluster(u32 cluster_num){
 
 void *map_disk(const char *fname);
 
-void retrive_long(union dent* entry){
+int retrive_long(union dent* entry){
 
   int top=0;
   u16 name[256];
   // char expends[32];
 
-  if(!((entry->long_name_dent.LDIR_Ord)&(LAST_LONG_ENTRY))) return;// not a long_name_dent
+  if(!((entry->long_name_dent.LDIR_Ord)&(LAST_LONG_ENTRY))) return 1;// not a long_name_dent
 
   int ori = (entry->long_name_dent.LDIR_Ord)&(~LAST_LONG_ENTRY); // original
 
-  if(ori>255/13) return;
+  if(ori>255/13) return 1;
 
-  union dent * final_entry =  entry + (ori - 1);
+  // union dent * final_entry =  entry + (ori - 1);
 
   for(int i=1;i<=ori;i++){
     union dent * next_entry =  entry + (ori - i);
@@ -158,14 +158,14 @@ void retrive_long(union dent* entry){
       goto done;
     }
     for(int j=0;j<sizeof(next_entry->long_name_dent.LDIR_Name2)/sizeof(u16);j++){
-      if(next_entry->long_name_dent.LDIR_Name1[j] != 0x0000){
-        name[top++] = next_entry->long_name_dent.LDIR_Name1[j];
+      if(next_entry->long_name_dent.LDIR_Name2[j] != 0x0000){
+        name[top++] = next_entry->long_name_dent.LDIR_Name2[j];
       }
       goto done;
     }
     for(int j=0;j<sizeof(next_entry->long_name_dent.LDIR_Name3)/sizeof(u16);j++){
-      if(next_entry->long_name_dent.LDIR_Name1[j] != 0x0000){
-        name[top++] = next_entry->long_name_dent.LDIR_Name1[j];
+      if(next_entry->long_name_dent.LDIR_Name3[j] != 0x0000){
+        name[top++] = next_entry->long_name_dent.LDIR_Name3[j];
       }
       goto done;
     }
@@ -178,7 +178,7 @@ done:
   }
   putchar('\n');
 
-
+  return ori;
 
 }
 
@@ -190,7 +190,7 @@ void doit(u8 *whole_disk){
   
   while(((uintptr_t)entry-(uintptr_t)whole_disk)<size){
     if(is_long_name_dent(entry)){ // long entry
-      retrive_long(entry);
+      // entry+=retrive_long(entry);
     }else if(is_short_dent(entry)){
 
     }
