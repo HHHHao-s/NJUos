@@ -176,6 +176,7 @@ done:
   for(int i=0;i<top;i++){
     putchar(name[i]);
   }
+  putchar('\n');
 
 
 
