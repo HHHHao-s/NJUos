@@ -149,7 +149,7 @@ int retrive_long(union dent* entry){
 
   // union dent * final_entry =  entry + (ori - 1);
   if(!(*(((char *)entry)+8)==0x42 && *(((char *)entry)+9)==0x4D && *(((char *)entry)+10)==0x50))return 1;
-
+  return 0;
 //   for(int i=1;i<=ori;i++){
 //     union dent * next_entry =  entry + (ori - i);
 //     for(int j=0;j<sizeof(next_entry->long_name_dent.LDIR_Name1)/sizeof(u16);j++){
