@@ -190,7 +190,10 @@ void doit(u8 *whole_disk){
   union dent* entry = (union dent*)(&whole_disk[data_offect]);
   
   while(((uintptr_t)entry-(uintptr_t)whole_disk)<size){
-    if(is_long_name_dent(entry)){ // long entry
+    if(entry->long_name_dent.LDIR_Attr == (ATTR_READ_ONLY | \
+    ATTR_HIDDEN | \
+    ATTR_SYSTEM | \
+    ATTR_VOLUME_ID)){ // long entry
       retrive_long(entry);
     }else if(is_short_dent(entry)){
 
