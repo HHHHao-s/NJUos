@@ -196,6 +196,7 @@ void doit(u8 *whole_disk){
     }
     entry++;
   }
+  printf("\n%d\n",((uintptr_t)entry-(uintptr_t)whole_disk));
   
   
 
