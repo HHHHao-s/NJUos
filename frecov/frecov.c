@@ -48,10 +48,13 @@ struct fat32hdr {
 void *map_disk(const char *fname);
 
 int main(int argc, char *argv[]) {
-  if (argc < 2) {
-    fprintf(stderr, "Usage: %s fs-image\n", argv[0]);
-    exit(1);
-  }
+  // if (argc < 2) {
+  //   fprintf(stderr, "Usage: %s fs-image\n", argv[0]);
+  //   exit(1);
+  // }
+
+  struct fat32hdr hd1 = {1,2};
+  printf("%u", hd1.BS_jmpBoot);
 
   setbuf(stdout, NULL);
 
