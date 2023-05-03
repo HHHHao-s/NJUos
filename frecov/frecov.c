@@ -145,6 +145,8 @@ void retrive_long(union dent* entry){
 
   int ori = (entry->long_name_dent.LDIR_Ord)&(~LAST_LONG_ENTRY); // original
 
+  if(ori>255/13) return;
+
   union dent * final_entry =  entry + (ori - 1);
 
   for(int i=1;i<=ori;i++){
