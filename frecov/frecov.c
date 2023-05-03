@@ -141,22 +141,35 @@ void retrive_long(union dent* entry){
   u16 name[256];
   // char expends[32];
 
-  if(!entry->long_name_dent.LDIR_Ord&LAST_LONG_ENTRY) return;// not a long_name_dent
+  if(!((entry->long_name_dent.LDIR_Ord)&(LAST_LONG_ENTRY))) return;// not a long_name_dent
 
-  int ori = entry->long_name_dent.LDIR_Ord&(~LAST_LONG_ENTRY); // original
+  int ori = (entry->long_name_dent.LDIR_Ord)&(~LAST_LONG_ENTRY); // original
 
   union dent * final_entry =  entry + (ori - 1);
 
   for(int i=1;i<=ori;i++){
     union dent * next_entry =  entry + (ori - i);
-    for(int j=0;j<sizeof(entry->long_name_dent.LDIR_Name1);j++){
-      if(entry->long_name_dent.LDIR_Name1[j] != 0x0000){
-        name[top++] = entry->long_name_dent.LDIR_Name1[j];
+    for(int j=0;j<sizeof(next_entry->long_name_dent.LDIR_Name1)/sizeof(u16);j++){
+      if(next_entry->long_name_dent.LDIR_Name1[j] != 0x0000){
+        name[top++] = next_entry->long_name_dent.LDIR_Name1[j];
       }
+      goto done;
     }
-    
+    for(int j=0;j<sizeof(next_entry->long_name_dent.LDIR_Name2)/sizeof(u16);j++){
+      if(next_entry->long_name_dent.LDIR_Name1[j] != 0x0000){
+        name[top++] = next_entry->long_name_dent.LDIR_Name1[j];
+      }
+      goto done;
+    }
+    for(int j=0;j<sizeof(next_entry->long_name_dent.LDIR_Name3)/sizeof(u16);j++){
+      if(next_entry->long_name_dent.LDIR_Name1[j] != 0x0000){
+        name[top++] = next_entry->long_name_dent.LDIR_Name1[j];
+      }
+      goto done;
+    }
   }
 
+done:
   name[top] = '\0';
   for(int i=0;i<top;i++){
     putchar(name[i]);
