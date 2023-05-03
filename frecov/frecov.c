@@ -12,6 +12,7 @@ typedef uint16_t u16;
 typedef uint32_t u32;
 
 // Copied from the manual
+// BPB structure
 struct fat32hdr {
   u8  BS_jmpBoot[3];
   u8  BS_OEMName[8];
@@ -42,16 +43,16 @@ struct fat32hdr {
   u8  BS_FilSysType[8];
   u8  __padding_1[420];
   u16 Signature_word;
-} __attribute__((packed));
+} __attribute__((packed));// packed指原始的未优化的内存空间
 
 
 void *map_disk(const char *fname);
 
 int main(int argc, char *argv[]) {
-  // if (argc < 2) {
-  //   fprintf(stderr, "Usage: %s fs-image\n", argv[0]);
-  //   exit(1);
-  // }
+  if (argc < 2) {
+    fprintf(stderr, "Usage: %s fs-image\n", argv[0]);
+    exit(1);
+  }
 
   struct fat32hdr hd1 = {1,2};
   printf("%u", hd1.BS_jmpBoot);
