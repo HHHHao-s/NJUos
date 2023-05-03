@@ -143,43 +143,43 @@ int retrive_long(union dent* entry){
 
   // if(!((entry->long_name_dent.LDIR_Ord)&(LAST_LONG_ENTRY))) return 1;// not a long_name_dent
 
-  int ori = (entry->long_name_dent.LDIR_Ord)&(~LAST_LONG_ENTRY); // original
+  // int ori = (entry->long_name_dent.LDIR_Ord)&(~LAST_LONG_ENTRY); // original
 
   // if(ori>3) return 1;
 
-  union dent * final_entry =  entry + (ori - 1);
-  if(!(*(((char *)final_entry)+8)==0x42 && *(((char *)final_entry)+9)==0x4D && *(((char *)final_entry)+10)==0x50))return 1;
+  // union dent * final_entry =  entry + (ori - 1);
+  if(!(*(((char *)entry)+8)==0x42 && *(((char *)entry)+9)==0x4D && *(((char *)entry)+10)==0x50))return 1;
 
-  for(int i=1;i<=ori;i++){
-    union dent * next_entry =  entry + (ori - i);
-    for(int j=0;j<sizeof(next_entry->long_name_dent.LDIR_Name1)/sizeof(u16);j++){
-      if(next_entry->long_name_dent.LDIR_Name1[j] != 0x0000){
-        name[top++] = next_entry->long_name_dent.LDIR_Name1[j];
-      }
-      goto done;
-    }
-    for(int j=0;j<sizeof(next_entry->long_name_dent.LDIR_Name2)/sizeof(u16);j++){
-      if(next_entry->long_name_dent.LDIR_Name2[j] != 0x0000){
-        name[top++] = next_entry->long_name_dent.LDIR_Name2[j];
-      }
-      goto done;
-    }
-    for(int j=0;j<sizeof(next_entry->long_name_dent.LDIR_Name3)/sizeof(u16);j++){
-      if(next_entry->long_name_dent.LDIR_Name3[j] != 0x0000){
-        name[top++] = next_entry->long_name_dent.LDIR_Name3[j];
-      }
-      goto done;
-    }
-  }
+//   for(int i=1;i<=ori;i++){
+//     union dent * next_entry =  entry + (ori - i);
+//     for(int j=0;j<sizeof(next_entry->long_name_dent.LDIR_Name1)/sizeof(u16);j++){
+//       if(next_entry->long_name_dent.LDIR_Name1[j] != 0x0000){
+//         name[top++] = next_entry->long_name_dent.LDIR_Name1[j];
+//       }
+//       goto done;
+//     }
+//     for(int j=0;j<sizeof(next_entry->long_name_dent.LDIR_Name2)/sizeof(u16);j++){
+//       if(next_entry->long_name_dent.LDIR_Name2[j] != 0x0000){
+//         name[top++] = next_entry->long_name_dent.LDIR_Name2[j];
+//       }
+//       goto done;
+//     }
+//     for(int j=0;j<sizeof(next_entry->long_name_dent.LDIR_Name3)/sizeof(u16);j++){
+//       if(next_entry->long_name_dent.LDIR_Name3[j] != 0x0000){
+//         name[top++] = next_entry->long_name_dent.LDIR_Name3[j];
+//       }
+//       goto done;
+//     }
+//   }
 
-done:
-  name[top] = '\0';
-  for(int i=0;i<top;i++){
-    putchar(name[i]);
-  }
-  putchar('\n');
+// done:
+//   name[top] = '\0';
+//   for(int i=0;i<top;i++){
+//     putchar(name[i]);
+//   }
+//   putchar('\n');
 
-  return ori;
+//   return ori;
 
 }
 
