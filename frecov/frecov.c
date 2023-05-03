@@ -141,7 +141,7 @@ int retrive_long(union dent* entry){
   u16 name[256];
   // char expends[32];
 
-  if(!((entry->long_name_dent.LDIR_Ord)&(LAST_LONG_ENTRY))) return 1;// not a long_name_dent
+  // if(!((entry->long_name_dent.LDIR_Ord)&(LAST_LONG_ENTRY))) return 1;// not a long_name_dent
 
   int ori = (entry->long_name_dent.LDIR_Ord)&(~LAST_LONG_ENTRY); // original
 
