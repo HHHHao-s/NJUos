@@ -115,14 +115,14 @@ struct fatentry{
 }; // section 4
 
 struct fat32hdr *hdr;
-enum fatentrystatus{
-  free = 1,
-  allocated,
-  reserved,
-  bad,
-  may_be_end_of_file,
-  end_of_file
-};
+// enum fatentrystatus{
+//   FREE = 1,
+//   allocated,
+//   reserved,
+//   bad,
+//   may_be_end_of_file,
+//   end_of_file
+// };
 
 u32 BytsPerSec;
 u32 BytesPerCluster;
