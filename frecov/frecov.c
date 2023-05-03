@@ -137,7 +137,7 @@ void *map_disk(const char *fname);
 
 void retrive_long(union dent* entry){
 
-  int top;
+  int top=0;
   u16 name[256];
   // char expends[32];
 
@@ -179,11 +179,11 @@ done:
 
 }
 
-void doit(void *whole_disk){
+void doit(u8 *whole_disk){
 
   off_t data_offect = FirstDataSector*BytesPerCluster;
 
-  union dent* entry = (union dent*)&whole_disk[data_offect];
+  union dent* entry = (union dent*)(&whole_disk[data_offect]);
   
   while(((uintptr_t)entry-(uintptr_t)whole_disk)<size){
     if(is_long_name_dent(entry)){ // long entry
@@ -219,7 +219,7 @@ int main(int argc, char *argv[]) {
   FirstDataSector = hdr->BPB_RsvdSecCnt + (hdr->BPB_NumFATs * hdr->BPB_FATSz32) + ((hdr->BPB_RootEntCnt *32 ) + (hdr->BPB_BytsPerSec -1))/hdr->BPB_BytsPerSec;
   Maximum_Valid_Cluster_Number =  (hdr->BPB_TotSec32 - (hdr->BPB_RsvdSecCnt)+(hdr->BPB_NumFATs*hdr->BPB_FATSz32))/hdr->BPB_SecPerClus;
   // TODO: frecov
-
+  doit((u8 *)hdr);
   // file system traversal
   munmap(hdr, hdr->BPB_TotSec32 * hdr->BPB_BytsPerSec);
 }
