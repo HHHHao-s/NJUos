@@ -190,7 +190,7 @@ void doit(u8 *whole_disk){
   
   while(((uintptr_t)entry-(uintptr_t)whole_disk)<size){
     if(is_long_name_dent(entry)){ // long entry
-      // entry+=retrive_long(entry);
+      retrive_long(entry);
     }else if(is_short_dent(entry)){
 
     }
