@@ -280,6 +280,7 @@ if(top==0)return entry+1;
     short_name[i] = (char)name[i];
     // printf("%c",name[i]);
   }
+  short_name[top] = '\0';
   // putchar('\n');
 
   save_bmp(short_name, file_cluster_no, file_size);
