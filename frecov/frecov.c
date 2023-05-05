@@ -179,7 +179,7 @@ void save_bmp(u32 file_cluster_no, u32 file_size){
  
   clu = (struct cluster *)hdr + file_cluster_no;
 
-
+  printf("%p", clu);
 
 
 }
@@ -307,7 +307,7 @@ int main(int argc, char *argv[]) {
 
   assert(sizeof(struct fat32hdr) == 512); // defensive
   assert(sizeof(union dent) == 32);
-  assert(sizeof(bit_map_header) == 14)
+  assert(sizeof(bit_map_header) == 14);
   // map disk image to memory
   hdr = map_disk(argv[1]);
 
