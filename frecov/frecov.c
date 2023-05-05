@@ -216,7 +216,7 @@ void doit(u8 *whole_disk){
     ATTR_VOLUME_ID)){ // long entry
       entry = retrive_long(entry);
     }else if(is_short_dent(entry)){
-      ;
+      entry++;
     }
     // if(((uintptr_t)entry-(uintptr_t)whole_disk) == 0x25040){
     //   retrive_long(entry);
