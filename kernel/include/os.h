@@ -1,7 +1,16 @@
 #include <common.h>
-#define KMT_STACK_SIZE 8192*4
+#define KMT_STACK_SIZE 8192
 #define KMT_FENCE_SIZE 32
 #define KMT_NAME_SIZE 32
+#define KMT_LOG_SIZE 8
+
+int task_list_insert(task_t *task);
+void task_list_delete(task_t *task);
+void task_list_print();
+task_t* task_alloc();
+void log_map(task_t *task, void *vaddr, void *paddr, int prot);
+
+
 struct spinlock {
   
   int lock;// 锁
@@ -16,13 +25,15 @@ struct semaphore {
 
 
 struct task {
-  // int id;
+  
   union
   {  
     struct{
+      int id;
       enum {
       RUNNING = 1,
       RUNNABLE,
+      ZOMBIE,
       DEAD,
       CAN_BE_CLEAR
       }status;
@@ -32,12 +43,20 @@ struct task {
       void *arg;
       struct task *next;
       Context *context;
+      AddrSpace as;
+      struct task *parent;
+      int exit_status;
+      struct{
+        struct {uintptr_t va, pa;} log[KMT_LOG_SIZE]; // 记录map过的pa
+        int log_len;
+      };
+      
       uint8_t fence[KMT_FENCE_SIZE]; // 用来防止overflow 
     };
     
     uint8_t stack[KMT_STACK_SIZE]; // 栈指针
   };
-};// 整个结构体就是2个page
+};// 整个结构体就是KMT_STACK_SIZE
 
 
 struct

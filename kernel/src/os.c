@@ -1,6 +1,7 @@
 // #include <common.h>
 #include <os.h>
 #include <devices.h>
+#include <hashmap.h>
 
 static void os_run();
 static Context * os_trap(Event ev, Context *context);
@@ -20,7 +21,7 @@ struct{
 }pool;
 
 
-static task_t* task_alloc(){
+task_t* task_alloc(){
   return pmm->alloc(sizeof(task_t));
 }
 
@@ -61,7 +62,7 @@ void pool_init(int size, int con, int pro){
 
 
 
-static void tty_reader(void *arg) {
+void tty_reader(void *arg) {
   device_t *tty = dev->lookup(arg);
 
   char cmd[128], resp[128], ps[16];
@@ -75,16 +76,9 @@ static void tty_reader(void *arg) {
   }
 }
 
-// static void test(void *arg){
-//   while(1){
-//     atom_printf("%d", arg);
-//     for(int i=0;i<1000000;i++);
-//   }
-  
-// }
 
 static void os_init() {
-  pmm->init();
+  
 
   os_irq(0, EVENT_ERROR, error_handler);
   os_irq(50, EVENT_IRQ_IODEV, iodev_handler);
@@ -92,16 +86,8 @@ static void os_init() {
   os_irq(100, EVENT_SYSCALL, syscall_handler);
   os_irq(100, EVENT_IRQ_TIMER, inter_handler);
   os_irq(100, EVENT_YIELD, yield_handler);
-  kmt->init();
+  
 
-  // pool_init(4,1,1);
- 
-
-  dev->init();
-  kmt->create(task_alloc(), "tty_reader", tty_reader, "tty1");
-  kmt->create(task_alloc(), "tty_reader", tty_reader, "tty2");
-
-  // while(1);
   
 }
 
@@ -114,47 +100,120 @@ static void os_run() {
 
 }
 
-
-
-// EVENT_PAGEFAULT
-static Context *page_handler(Event ev, Context *ctx){
-  panic("pagefault");
-
-}
-
-
-
 //EVENT_SYSCALL
 static Context *syscall_handler(Event ev, Context *ctx){
   // TODO
-  panic("syscall");
+
+  // kmt->spin_lock(&print_lock);
+  
+  current_task->context = ctx; // save 起来
+
+  switch (ctx->rax)
+  {
+  case SYS_kputc:
+    ctx->GPRx =(int)uproc->kputc(current_task, (char)ctx->GPR1);
+    break;
+  case SYS_fork:
+    uproc->fork(current_task); // 这个不能规定返回值
+    break;
+  case SYS_exit:
+    ctx->GPRx =(int)uproc->exit(current_task, (int)ctx->GPR1);
+    break;
+  case SYS_wait:
+    ctx->GPRx =(int)uproc->wait(current_task, (int *)&ctx->GPR1);
+    break;
+  case SYS_mmap:
+    ctx->GPRx =(uint64_t)uproc->mmap(current_task, (void *)ctx->GPR1, (int)ctx->GPR2, (int)ctx->GPR3, (int)ctx->GPR4);
+    break;
+  case SYS_getpid:
+    
+    ctx->GPRx =(int)uproc->getpid(current_task);
+    break;
+  case SYS_sleep:
+    ctx->GPRx = (int)uproc->sleep(current_task, (int)ctx->GPR1);
+    break;
+  case SYS_kill:
+    ctx->GPRx = (int)uproc->kill(current_task, (int)ctx->GPR1);
+    break;
+  case SYS_uptime:
+    ctx->GPRx = (int64_t)uproc->uptime(current_task);
+    break;
+  default:
+    break;
+  }
+  // kmt->spin_unlock(&print_lock);
+  
+  // current_task->context->cr3 = current_task->as.ptr;
+
+  return current_task->context;
+}
+
+
+
+
+
+
+
+// EVENT_PAGEFAULT 将旧的pa减少引用次数，将va映射成旧的pa的拷贝，更改log
+static Context *page_handler(Event ev, Context *ctx){
+  // current_task->context = ctx;
+
+  atom_printf("%d:%p\n", current_task->id, ev.ref);
+  
+  int index=0;
+  void * va = (void *)ROUNDDOWN(ev.ref, current_task->as.pgsize);
+
+  for(;index<current_task->log_len;index++){
+    if(current_task->log[index].va == (uintptr_t)va) break;
+  }
+  
+  panic_on(index==current_task->log_len,"page_handler");
+
+  void *pa_old = (void *)current_task->log[index].pa;
+  void *pa_new = (void *)pmm->alloc(current_task->as.pgsize);
+
+  memmove(pa_new, pa_old, current_task->as.pgsize);
+
+  map(&current_task->as, va, NULL, MMAP_NONE);
+  map(&current_task->as, va, pa_new, MMAP_READ|MMAP_WRITE);
+  current_task->log[index].pa = (uintptr_t)pa_new;
+  decrease(pa_old);
+  increase(pa_new);
+  return ctx;
 
 }
+
+
 
 
 //EVENT_IRQ_IODEV
 static Context *iodev_handler(Event ev, Context *ctx){
-  putch('I');
-  // kmt->sem_signal(&((tty_t *)ttys[0]->ptr)->cooked);
-  // kmt->sem_signal(&((tty_t *)ttys[1]->ptr)->cooked);
-  // return ctx;
-  // yield();
+  
   return ctx;
 }
 
 
 // EVENT_ERROR
 static Context *error_handler(Event ev, Context *ctx){
-  panic("error_handler");
+  atom_printf("\n%d:%s:%p",current_task->id, ev.msg,ev.ref);
+  // putstr(ev.msg);
+  panic("error");
+  // ctx->cr3 = current_task->as.ptr;
+  // return ctx;
 }
 
 
 // 时钟中断处理程序
 static Context *inter_handler(Event ev, Context *ctx){
   // putch('i');
-  
+  // L(&current_task->lock);
+  // if(current_task)
+  //   current_task->context->cr3 = current_task->as.ptr;
+  // U(&current_task->lock);
   yield(); // 将执行到这里的状态保存起来，待调用
-  
+  // ctx->cr3 = current_task->as.ptr;
+  // atom_printf("%d",current_task->id);
+  // atom_printf("%p\n",ctx->cr3);
   return ctx;
 
 
@@ -162,9 +221,14 @@ static Context *inter_handler(Event ev, Context *ctx){
 
 static Context *yield_handler(Event ev, Context *ctx){
   //save
-  // putch('y');
-  
+
+  // task_list_print();
+
+  int saved = ienabled();
+  iset(0);
+  Context *ret = NULL;
   // atom_printf("yield_handler\n");
+  // ctx->cr3 = current_task->as.ptr;
   if(current_task != NULL){ 
     kmt->spin_lock(&current_task->lock);
     if(current_task->status==DEAD) {
@@ -184,9 +248,10 @@ static Context *yield_handler(Event ev, Context *ctx){
     current_task = task_list.head;
   }
   //schedule
-
+  
   if(current_task==NULL){// 到这里还是NULL的话，没有task被创建，直接返回ctx
-    return ctx;
+
+    ret= ctx;
   }else{ 
     kmt->spin_lock(&task_list.lock); // 锁整个链表
     do{
@@ -195,9 +260,17 @@ static Context *yield_handler(Event ev, Context *ctx){
     current_task->status=RUNNING;
     kmt->spin_unlock(&task_list.lock);
     // atom_printf("turn to%s\n", current_task->name);
-    return current_task->context;
+    putch('0'+ current_task->id);
+
+
+    atom_printf("%p==%p\n",current_task->as.ptr,current_task->context->cr3);
+
+    // current_task->context->cr3=current_task->as.ptr;
+    ret = current_task->context;
   } 
-  
+
+  iset(saved);
+  return ret;
 }
 
 
@@ -205,9 +278,11 @@ static Context *yield_handler(Event ev, Context *ctx){
 // 中断发生后会到此处
 static Context * os_trap(Event ev, Context *context){// 在此处，状态已经被保存在context
   // putch('t');
+  // int saved = ienabled();
+  // iset(0);
+
   Context *next = NULL;
-  bool saved_i = ienabled();
-  iset(false); // 关中断
+  // context->cr3 = current_task->as.ptr;
   for (handler_node *h=handler_head;h;h=h->next) {
     if (h->event == ev.event) {
       Context *r = h->handler(ev, context); // 用os_irq注册的handler
@@ -218,8 +293,10 @@ static Context * os_trap(Event ev, Context *context){// 在此处，状态已经
   
   panic_on(!next, "returning NULL context");
   // panic_on(sane_context(next), "returning to invalid context");// 检查next（不检查了）
+
+  // iset(saved);
+  // atom_printf("ret");
   
-  iset(saved_i);
   return next;
 }
 

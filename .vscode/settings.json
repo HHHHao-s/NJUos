@@ -1,0 +1,26 @@
+{
+    "files.associations": {
+        "co.h": "c",
+        "stdio.h": "c",
+        "string.h": "c",
+        "klib.h": "c",
+        "stdarg.h": "c",
+        "common.h": "c",
+        "kernel.h": "c",
+        "am.h": "c",
+        "klib-macros.h": "c",
+        "stdint.h": "c",
+        "stddef.h": "c",
+        "stdbool.h": "c",
+        "os.h": "c",
+        "syscall.h": "c",
+        "unistd.h": "c",
+        "unistd_64.h": "c",
+        "stdlib.h": "c",
+        "dlfcn.h": "c",
+        "*.inc": "c",
+        "devices.h": "c",
+        "fcntl.h": "c"
+    },
+    "C_Cpp.errorSquiggles": "enabled"
+}

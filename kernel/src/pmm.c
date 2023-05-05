@@ -25,7 +25,7 @@ void unlock(){atomic_xchg(&bin_lock, 0);};
 
 
 
-static void *kalloc(size_t size) {
+static void *kalloc(int size) {
   lock();
   void *ret = mm_malloc(size);
   unlock();
@@ -196,7 +196,7 @@ int mm_init(void)
 
     PAGEPOS = _log2(PAGESIZE);
     Manager.len = 0;
-    Manager.PageArray = mem_sbrk((1<<12)*(sizeof(Page)));// can manage 4k pages
+    Manager.PageArray = mem_sbrk(ROUNDUP(((heap.end-heap.start)/PAGESIZE)*(sizeof(Page)), PAGESIZE));// can manage whole heap
      
     pagehead = NULL;
 

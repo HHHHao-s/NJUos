@@ -3,10 +3,13 @@
 
 int main() {
   ioe_init();
+  pmm->init();
   cte_init(os->trap);
   os->init();
-  
-  mpe_init(os->run);
-  
+  kmt->init();
+  uproc->init();
+  iset(true);// 开中断
+  yield();
+  while(1);
   return 1;
 }

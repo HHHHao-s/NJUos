@@ -1,4 +1,5 @@
 #include <am.h>
+#include <syscall.h>
 // #include <os.h>
 #define MODULE(mod) \
   typedef struct mod_##mod##_t mod_##mod##_t; \
@@ -16,6 +17,9 @@
 #define current_task currents[cpu_current()]
 #define P(s) kmt->sem_wait(s)
 #define V(s) kmt->sem_signal(s)
+#define L(s) kmt->spin_lock(s)
+#define U(s) kmt->spin_unlock(s)
+
 
 typedef struct spinlock spinlock_t;
 typedef struct semaphore sem_t;
@@ -51,7 +55,7 @@ MODULE(os) {
 
 MODULE(pmm) {
   void  (*init)();
-  void *(*alloc)(size_t size);
+  void *(*alloc)(int size);
   void  (*free)(void *ptr);
 };
 
@@ -74,4 +78,17 @@ typedef struct device device_t;
 MODULE(dev) {
   void (*init)();
   device_t *(*lookup)(const char *name);
+};
+
+MODULE(uproc) {
+  void (*init)();
+  int (*kputc)(task_t *task, char ch);
+  int (*fork)(task_t *task);
+  int (*wait)(task_t *task, int *status);
+  int (*exit)(task_t *task, int status);
+  int (*kill)(task_t *task, int pid);
+  void *(*mmap)(task_t *task, void *addr, int length, int prot, int flags);
+  int (*getpid)(task_t *task);
+  int (*sleep)(task_t *task, int seconds);
+  int64_t (*uptime)(task_t *task);
 };
