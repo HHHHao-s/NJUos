@@ -205,9 +205,9 @@ void doit(u8 *whole_disk){
     }else if(is_short_dent(entry)){
 
     }
-    if(((uintptr_t)entry-(uintptr_t)whole_disk) == 0x25040){
-      retrive_long(entry);
-    }
+    // if(((uintptr_t)entry-(uintptr_t)whole_disk) == 0x25040){
+    //   retrive_long(entry);
+    // }
     // printf("%x\n",(unsigned int)((uintptr_t)entry-(uintptr_t)whole_disk));
   
   
