@@ -194,7 +194,8 @@ if(top==0)return entry+1;
   name[top] = '\0';
   
   for(int i=0;i<top;i++){
-    putchar(name[i]);
+    // print utf-16 word
+    printf("%c",name[i]);
   }
   putchar('\n');
 
