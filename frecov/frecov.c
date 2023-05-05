@@ -187,7 +187,7 @@ void save_bmp(char name[], u32 file_cluster_no, u32 file_size){
   char buf[512] = "./bmps/";
   strcat(buf, name);
 
-  int fd = open(buf, O_CREAT|O_TRUNC|O_WRONLY,0x666);
+  int fd = open(buf, O_CREAT|O_TRUNC|O_WRONLY,0x660);
   if(fd <0){
     perror("save_bmp_open");
     return;
