@@ -182,7 +182,7 @@ void save_bmp(char name[], u32 file_cluster_no, u32 file_size){
   bit_map_header * bit_map = (bit_map_header *)sec;
   if(bit_map->bfType != 0x424d) return ;
 
-  printf("%p\n", sec);
+  printf("%s\n", name);
 
   char buf[512] = "./bmps/";
   strcat(buf, name);
@@ -278,9 +278,9 @@ if(top==0)return entry+1;
   for(int i=0;i<top;i++){
     // print utf-16 word
     short_name[i] = name[i];
-    printf("%c",name[i]);
+    // printf("%c",name[i]);
   }
-  putchar('\n');
+  // putchar('\n');
 
   save_bmp(short_name, file_cluster_no, file_size);
 
