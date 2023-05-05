@@ -192,7 +192,7 @@ if(top==0)return 1;
 
 void doit(u8 *whole_disk){
 
-  off_t data_offect = FirstDataSector*BytesPerCluster;
+  off_t data_offect = FirstDataSector*BytsPerSec;
 
   union dent* entry = (union dent*)(&whole_disk[data_offect]);
   
