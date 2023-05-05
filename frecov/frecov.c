@@ -196,17 +196,19 @@ void save_bmp(char name[], u32 file_cluster_no, u32 file_size){
 
   u32 mapsize = (file_size+sysconf(_SC_PAGE_SIZE)-1)&~(sysconf(_SC_PAGE_SIZE)-1);
 
-  void *filebegin = mmap(NULL, mapsize, PROT_WRITE, MAP_PRIVATE, fd, 0);
-  if(filebegin==MAP_FAILED){
-    perror("save_bmp_mmap");
-    return;
-  } 
+  // void *filebegin = mmap(NULL, mapsize, PROT_WRITE, MAP_PRIVATE, fd, 0);
+  // if(filebegin==MAP_FAILED){
+  //   perror("save_bmp_mmap");
+  //   return;
+  // } 
+
+  write(fd, sec, file_size);
+
 
   assert(close(fd)==0);
 
-  memcpy(filebegin, sec, mapsize);
-
-  assert(munmap(filebegin, mapsize) == 0);
+  
+  // assert(munmap(filebegin, mapsize) == 0);
 
 
 }
