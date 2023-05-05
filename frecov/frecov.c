@@ -160,20 +160,24 @@ int retrive_long(union dent* entry){
     for(int j=0;j<sizeof(next_entry->long_name_dent.LDIR_Name1)/sizeof(u16);j++){
       if(next_entry->long_name_dent.LDIR_Name1[j] != 0x0000){
         name[top++] = next_entry->long_name_dent.LDIR_Name1[j];
+      }else{
+        goto done;
       }
-      goto done;
+      
     }
     for(int j=0;j<sizeof(next_entry->long_name_dent.LDIR_Name2)/sizeof(u16);j++){
       if(next_entry->long_name_dent.LDIR_Name2[j] != 0x0000){
         name[top++] = next_entry->long_name_dent.LDIR_Name2[j];
+      }else{
+        goto done;
       }
-      goto done;
     }
     for(int j=0;j<sizeof(next_entry->long_name_dent.LDIR_Name3)/sizeof(u16);j++){
       if(next_entry->long_name_dent.LDIR_Name3[j] != 0x0000){
         name[top++] = next_entry->long_name_dent.LDIR_Name3[j];
+      }else{
+        goto done;
       }
-      goto done;
     }
   }
 
