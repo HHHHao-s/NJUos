@@ -166,7 +166,7 @@ typedef struct _bit_map_header
 
 
 
-void save_bmp(u16 name[], u32 file_cluster_no, u32 file_size){
+void save_bmp(char name[], u32 file_cluster_no, u32 file_size){
 
   if(file_cluster_no>Maximum_Valid_Cluster_Number) return;
 
@@ -203,7 +203,7 @@ void save_bmp(u16 name[], u32 file_cluster_no, u32 file_size){
 
   assert(munmap(filebegin, file_size) == 0);
 
-  
+
 }
 
 
