@@ -129,6 +129,11 @@ u32 BytesPerCluster;
 u32 Maximum_Valid_Cluster_Number;
 u32 FirstDataSector;
 off_t size;
+u32 RootDirSectors;
+
+
+
+
 u32 FirstSectorofCluster(u32 cluster_num){
   return (cluster_num - 2)*(hdr->BPB_SecPerClus) + FirstDataSector;
 }
@@ -232,8 +237,9 @@ int main(int argc, char *argv[]) {
   hdr = map_disk(argv[1]);
 
   BytsPerSec = hdr->BPB_BytsPerSec;
+  RootDirSectors = ((hdr->BPB_RootEntCnt *32 ) + (hdr->BPB_BytsPerSec -1))/hdr->BPB_BytsPerSec;
   BytesPerCluster = hdr->BPB_BytsPerSec * hdr->BPB_SecPerClus;
-  FirstDataSector = hdr->BPB_RsvdSecCnt + (hdr->BPB_NumFATs * hdr->BPB_FATSz32) + ((hdr->BPB_RootEntCnt *32 ) + (hdr->BPB_BytsPerSec -1))/hdr->BPB_BytsPerSec;
+  FirstDataSector = hdr->BPB_RsvdSecCnt + (hdr->BPB_NumFATs * hdr->BPB_FATSz32) + RootDirSectors;
   Maximum_Valid_Cluster_Number =  (hdr->BPB_TotSec32 - (hdr->BPB_RsvdSecCnt)+(hdr->BPB_NumFATs*hdr->BPB_FATSz32))/hdr->BPB_SecPerClus;
   // TODO: frecov
   doit((u8 *)hdr);
