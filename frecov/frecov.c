@@ -155,7 +155,7 @@ union dent* retrive_long(union dent* entry){
   
 
 
-  if(ori>19||!entry->long_name_dent.LDIR_Ord&LAST_LONG_ENTRY) return entry+1; // max ori
+  if(ori>19||!(entry->long_name_dent.LDIR_Ord&LAST_LONG_ENTRY)) return entry+1; // max ori
 
   union dent * final_entry = entry + ori; // metedata
 
