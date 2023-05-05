@@ -1,6 +1,30 @@
 {
     "version": "0.2.0",
     "configurations": [
+    {
+        "name": "M5",
+        "type": "cppdbg",
+        "request": "launch",
+        "program": "${workspaceFolder}/frecov/frecov-64",
+        "args": ["frecov.img"],
+        "stopAtEntry": false,
+        "cwd": "${workspaceFolder}/frecov",
+        "environment": [],
+        "externalConsole": false,
+        "MIMode": "gdb",
+        "setupCommands": [
+            {
+                "description": "Enable pretty-printing for gdb",
+                "text": "-enable-pretty-printing",
+                "ignoreFailures": true
+            },
+            {
+                "description": "Set Disassembly Flavor to Intel",
+                "text": "-gdb-set disassembly-flavor intel",
+                "ignoreFailures": true
+            }
+        ]
+    },
         {
             "name": "(gdb) Launch",
             "type": "cppdbg",

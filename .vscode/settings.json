@@ -19,7 +19,8 @@
         "stdlib.h": "c",
         "dlfcn.h": "c",
         "*.inc": "c",
-        "devices.h": "c"
+        "devices.h": "c",
+        "fcntl.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }
