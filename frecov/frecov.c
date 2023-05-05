@@ -140,7 +140,7 @@ u32 FirstSectorofCluster(u32 cluster_num){
 
 void *map_disk(const char *fname);
 
-int retrive_long(union dent* entry){
+union dent* retrive_long(union dent* entry){
 
   int top=0;
   u16 name[256];
@@ -148,13 +148,20 @@ int retrive_long(union dent* entry){
 
   // if(!((entry->long_name_dent.LDIR_Ord)&(LAST_LONG_ENTRY))) return 1;// not a long_name_dent
 
+  
+
   int ori = (entry->long_name_dent.LDIR_Ord)&(~LAST_LONG_ENTRY); // original
 
-  if(ori>10) return 1;
+  
 
-  // union dent * final_entry =  entry + (ori - 1);
-  // if(!(*(((char *)entry)+8)==0x42 && *(((char *)entry)+9)==0x4D && *(((char *)final_entry)+10)==0x50))return 1;
 
+  if(ori>19) return entry+1; // max ori
+
+  union dent * final_entry = entry + ori; // metedata
+
+  u32 file_cluster_no = final_entry->origin_dent.DIR_FstClusLO + (final_entry->origin_dent.DIR_FstClusHI >> 16);
+  u32 file_size = final_entry->origin_dent.DIR_FileSize;
+ 
   for(int i=1;i<=ori;i++){
     union dent * next_entry =  entry + (ori - i);
     for(int j=0;j<sizeof(next_entry->long_name_dent.LDIR_Name1)/sizeof(u16);j++){
@@ -182,7 +189,8 @@ int retrive_long(union dent* entry){
   }
 
 done:
-if(top==0)return 1;
+if(top==0)return entry+1;
+
   name[top] = '\0';
   
   for(int i=0;i<top;i++){
@@ -190,7 +198,7 @@ if(top==0)return 1;
   }
   putchar('\n');
 
-  return ori;
+  return final_entry+1;
 
 }
 
@@ -205,13 +213,13 @@ void doit(u8 *whole_disk){
     ATTR_HIDDEN | \
     ATTR_SYSTEM | \
     ATTR_VOLUME_ID)){ // long entry
-      retrive_long(entry);
+      entry = retrive_long(entry);
     }else if(is_short_dent(entry)){
-
+      ;
     }
-    if(((uintptr_t)entry-(uintptr_t)whole_disk) == 0x25040){
-      retrive_long(entry);
-    }
+    // if(((uintptr_t)entry-(uintptr_t)whole_disk) == 0x25040){
+    //   retrive_long(entry);
+    // }
     // printf("%x\n",(unsigned int)((uintptr_t)entry-(uintptr_t)whole_disk));
   
   
