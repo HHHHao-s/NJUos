@@ -203,7 +203,7 @@ void doit(u8 *whole_disk){
     if(((uintptr_t)entry-(uintptr_t)whole_disk) == 0x25040){
       retrive_long(entry);
     }
-    printf("\n%x\n",(unsigned int)((uintptr_t)entry-(uintptr_t)whole_disk));
+    // printf("%x\n",(unsigned int)((uintptr_t)entry-(uintptr_t)whole_disk));
   
   
     entry++;
