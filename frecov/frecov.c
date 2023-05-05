@@ -253,7 +253,7 @@ if(top==0)return entry+1;
     // print utf-16 word
     printf("%c",name[i]);
   }
-  putchar("\n");
+  putchar('\n');
 
   save_bmp(file_cluster_no, file_size);
 
