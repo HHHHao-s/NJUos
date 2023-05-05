@@ -200,7 +200,7 @@ void save_bmp(char name[], u32 file_cluster_no, u32 file_size){
     return;
   } 
 
-  assert(close(fd)>0);
+  assert(close(fd)==0);
 
   memcpy(filebegin, sec, file_size);
 
