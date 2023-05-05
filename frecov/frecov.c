@@ -173,11 +173,11 @@ void save_bmp(u32 file_cluster_no, u32 file_size){
   u32 file_sec_no = FirstSectorofCluster(file_cluster_no);
 
   // sector array;
-  struct cluster{
+  volatile struct cluster{
     u8 data[BytesPerCluster];
   }*clu;
  
-  volatile clu = (struct cluster *)hdr + file_cluster_no;
+   clu = (struct cluster *)hdr + file_cluster_no;
 
 
   printf("%p\n", clu);
