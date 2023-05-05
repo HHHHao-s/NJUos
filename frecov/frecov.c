@@ -155,7 +155,7 @@ union dent* retrive_long(union dent* entry){
   
 
 
-  if(ori>19) return entry+1; // max ori
+  if(ori>19||!entry->long_name_dent.LDIR_Ord&LAST_LONG_ENTRY) return entry+1; // max ori
 
   union dent * final_entry = entry + ori; // metedata
 
@@ -224,7 +224,7 @@ void doit(u8 *whole_disk){
     // printf("%x\n",(unsigned int)((uintptr_t)entry-(uintptr_t)whole_disk));
   
   
-    entry++;
+    // entry++;
   }
   printf("\n%x\n",(unsigned int)((uintptr_t)entry-(uintptr_t)whole_disk));
   
