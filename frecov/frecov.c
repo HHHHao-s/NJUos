@@ -251,9 +251,9 @@ if(top==0)return entry+1;
   
   for(int i=0;i<top;i++){
     // print utf-16 word
-    printf("%c\n",name[i]);
+    printf("%c",name[i]);
   }
-
+  putchar("\n");
 
   save_bmp(file_cluster_no, file_size);
 
