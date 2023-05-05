@@ -134,11 +134,67 @@ u32 RootDirSectors;
 
 
 
+
 u32 FirstSectorofCluster(u32 cluster_num){
   return (cluster_num - 2)*(hdr->BPB_SecPerClus) + FirstDataSector;
 }
 
+
+
+
+
+
 void *map_disk(const char *fname);
+
+
+typedef struct _bit_map_header
+
+{
+
+  u16 bfType;
+
+  u32 bfSize;
+
+  u16 bfReserved1;
+
+  u16 bfReserved2;
+
+  u32 bfOffBits;
+
+
+}__attribute__((packed)) bit_map_header;
+
+
+
+void save_bmp(u32 file_cluster_no, u32 file_size){
+
+  if(file_cluster_no>Maximum_Valid_Cluster_Number || file_size>BytesPerCluster) return;
+
+  u32 file_sec_no = FirstSectorofCluster(file_cluster_no);
+
+  // sector array;
+  struct cluster{
+    u8 data[BytesPerCluster];
+  }*clu;
+ 
+  clu = (struct cluster *)hdr + file_cluster_no;
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 union dent* retrive_long(union dent* entry){
 
@@ -195,9 +251,12 @@ if(top==0)return entry+1;
   
   for(int i=0;i<top;i++){
     // print utf-16 word
-    printf("%c",name[i]);
+    printf("%c\n",name[i]);
   }
-  putchar('\n');
+
+
+  save_bmp(file_cluster_no, file_size);
+
 
   return final_entry+1;
 
@@ -248,6 +307,7 @@ int main(int argc, char *argv[]) {
 
   assert(sizeof(struct fat32hdr) == 512); // defensive
   assert(sizeof(union dent) == 32);
+  assert(sizeof(bit_map_header) == 14)
   // map disk image to memory
   hdr = map_disk(argv[1]);
 
