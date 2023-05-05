@@ -179,7 +179,7 @@ void save_bmp(u32 file_cluster_no, u32 file_size){
  
   clu = (struct cluster *)hdr + file_cluster_no;
 
-  printf("%p", clu);
+  printf("%p\n", clu);
 
 
 }
