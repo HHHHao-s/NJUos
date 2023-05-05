@@ -168,7 +168,7 @@ typedef struct _bit_map_header
 
 void save_bmp(u32 file_cluster_no, u32 file_size){
 
-  if(file_cluster_no>Maximum_Valid_Cluster_Number || file_size>BytesPerCluster) return;
+  if(file_cluster_no>Maximum_Valid_Cluster_Number) return;
 
   u32 file_sec_no = FirstSectorofCluster(file_cluster_no);
 
