@@ -180,7 +180,7 @@ void save_bmp(char name[], u32 file_cluster_no, u32 file_size){
   sec = (struct sector *)hdr + file_sec_no;
 
   bit_map_header * bit_map = (bit_map_header *)sec;
-  if(bit_map->bfType != 0x424d) return ;
+  if(bit_map->bfType != 0x4d42) return ;
 
   printf("%s\n", name);
 
