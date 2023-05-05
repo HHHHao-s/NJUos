@@ -166,7 +166,7 @@ typedef struct _bit_map_header
 
 
 
-void save_bmp(u32 file_cluster_no, u32 file_size){
+void save_bmp(u16 name[], u32 file_cluster_no, u32 file_size){
 
   if(file_cluster_no>Maximum_Valid_Cluster_Number) return;
 
@@ -177,12 +177,33 @@ void save_bmp(u32 file_cluster_no, u32 file_size){
     u8 data[BytsPerSec];
   }*sec;
  
-   sec = (struct sector *)hdr + file_sec_no;
+  sec = (struct sector *)hdr + file_sec_no;
 
 
   printf("%p\n", sec);
 
+  char buf[512] = "./bmps/";
+  strcat(buf, name);
 
+  int fd = open(buf, O_CREAT|O_TRUNC|O_WRONLY);
+  if(fd <0){
+    perror("save_bmp_open");
+    return;
+  }
+
+  void *filebegin = mmap(NULL, file_size, PROT_WRITE, MAP_PRIVATE, fd, 0);
+  if(filebegin==MAP_FAILED){
+    perror("save_bmp_mmap");
+    return;
+  } 
+
+  assert(close(fd)>0);
+
+  memcpy(filebegin, sec, file_size);
+
+  assert(munmap(filebegin, file_size) == 0);
+
+  
 }
 
 
@@ -250,13 +271,16 @@ if(top==0)return entry+1;
 
   name[top] = '\0';
   
+  char short_name[256];
+
   for(int i=0;i<top;i++){
     // print utf-16 word
+    short_name[i] = name[i];
     printf("%c",name[i]);
   }
   putchar('\n');
 
-  save_bmp(file_cluster_no, file_size);
+  save_bmp(short_name, file_cluster_no, file_size);
 
 
   return final_entry+1;
