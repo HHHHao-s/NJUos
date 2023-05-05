@@ -277,7 +277,7 @@ if(top==0)return entry+1;
 
   for(int i=0;i<top;i++){
     // print utf-16 word
-    short_name[i] = name[i];
+    short_name[i] = (char)name[i];
     // printf("%c",name[i]);
   }
   // putchar('\n');
